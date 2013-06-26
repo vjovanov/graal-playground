@@ -1,0 +1,48 @@
+===== AFTER_PARSING (required)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+locals: [_, 2]
+stack: []
+locks: []
+(2)
+4|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+5|+ { stamp=i, isStrictFP=false,  }(2,4)
+7|Return { stamp=Void, probability=0.0,  }(5)
+----- AFTER_PARSING (required) method calls 
+===== AFTER_PARSING 
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+locals: [1, 2]
+stack: []
+locks: []
+(1,2)
+----- AFTER_PARSING  method calls 
+===== HIGH_LEVEL
+0|StartNode(3)
+1|Local(0)()
+2|Local(1)()
+3|FrameState@0(1,2)
+7|LogicConstant()
+8|LogicConstant()
+----- HIGH_LEVEL method calls 
+===== MID_LEVEL
+0|StartNode(3)
+1|Local(0)()
+2|Local(1)()
+3|FrameState@0(1,2)
+9|LogicConstant()
+10|LogicConstant()
+----- MID_LEVEL method calls 
+===== FINAL
+0|StartNode(3)
+1|Local(0)()
+2|Local(1)()
+3|FrameState@0(1,2)
+9|LogicConstant()
+10|LogicConstant()
+----- FINAL method calls 
+===== DONE

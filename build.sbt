@@ -13,6 +13,8 @@ libraryDependencies += "org.scalatest" % "scalatest_2.9.0" % "1.6.1" % "test"
 
 libraryDependencies += "junit" % "junit" % "4.8.1" % "test"
 
+retrieveManaged := true
+
 unmanagedClasspath in Compile <++= baseDirectory map { base =>
   val graal = new File(System.getenv("JAVA_HOME")) / ".." / ".." / "graal"
   Seq(
@@ -21,6 +23,7 @@ unmanagedClasspath in Compile <++= baseDirectory map { base =>
     "com.oracle.graal.api.code",
     "com.oracle.graal.api.interpreter",
     "com.oracle.graal.api.meta",
+    "com.oracle.graal.api.runtime",
     "com.oracle.graal.api.test",
     "com.oracle.graal.boot",
     "com.oracle.graal.boot.test",
@@ -39,6 +42,8 @@ unmanagedClasspath in Compile <++= baseDirectory map { base =>
     "com.oracle.graal.lir.amd64",
     "com.oracle.graal.nodes",
     "com.oracle.graal.printer",
+    "com.oracle.graal.phases",
+    "com.oracle.graal.phases.common",
     "com.oracle.graal.snippets",
     "com.oracle.graal.snippets.test",
     "com.oracle.graal.tests",
