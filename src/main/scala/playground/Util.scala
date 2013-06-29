@@ -16,8 +16,10 @@ import com.oracle.graal.nodes.java._        // MethodCallTargetNode
 import com.oracle.graal.phases._   // PhasePlan
 import com.oracle.graal.phases.PhasePlan.PhasePosition
 import com.oracle.graal.phases.common._
-
+import com.oracle.graal.debug._;
 import collection.JavaConversions._
+import com.oracle.graal.debug.internal._
+import com.oracle.graal.printer._
 
 object Util {
 
@@ -27,10 +29,20 @@ object Util {
   def topScope[A](body: => A) = {
     //val hotspotDebugConfig = new HotSpotDebugConfig(GraalOptions.Log + ",Escape", GraalOptions.Meter, GraalOptions.Time, GraalOptions.Dump, GraalOptions.MethodFilter, System.out)
     val hotspotDebugConfig =
-      new GraalDebugConfig(GraalOptions.Log, GraalOptions.Meter, GraalOptions.Time, GraalOptions.Dump, GraalOptions.MethodFilter, System.out, Nil)
+      new GraalDebugConfig(GraalOptions.Log,
+       GraalOptions.Meter,
+       GraalOptions.Time,
+       "Playground",
+       "GraphBuilder$$anonfun$1.apply$mcII$sp",
+       System.out,
+       List(new GraphPrinterDumpHandler()))
+
     Debug.setConfig(hotspotDebugConfig)
+    println("OS Dump enabled: " + DebugScope.getInstance.isDumpEnabled)
     Debug.scope("Playground", new Callable[A] {
         def call: A = {
+          println(Debug.currentScope() + " ----- " + hotspotDebugConfig)
+          println("Body " + DebugScope.getInstance().isDumpEnabled)
           body
         }
     });

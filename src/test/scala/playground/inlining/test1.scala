@@ -11,7 +11,13 @@ class TestInline1 extends FileDiffSuite {
 
   // compiled function references other function object (stored in external field)
 
-  def testADefault = withOutFileChecked(prefix+"inc") {
-    assert(GraphBuilder.inc(2) == 3)
+  def testRet = withOutFileChecked(prefix+"ret") {
+    assert(GraphBuilder.ret(1) == 1)
   }
+
+  /*def testInc = withOutFileChecked(prefix+"inc") {
+    assert(GraphBuilder.inc(2) == 3)
+  }*/
+
+
 }

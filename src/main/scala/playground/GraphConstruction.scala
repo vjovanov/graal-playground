@@ -18,7 +18,7 @@ import com.oracle.graal.phases._   // PhasePlan
 import com.oracle.graal.phases.common._
 import com.oracle.graal.phases.PhasePlan.PhasePosition
 import com.oracle.graal.nodes.calc._
-
+import com.oracle.graal.debug.internal._;
 import collection.JavaConversions._
 
 object GraphBuilder {
@@ -32,13 +32,18 @@ object GraphBuilder {
 
   val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
 
-  def inc(t: Int): Int = {
-    val f = compile((x: Int) => x + 1)
-    3// f(t)
+  def ret(i: Int): Int = {
+    val f = compile((x: Int) => x)(buildRet)
+    1 // f(i)
   }
 
-  def build(graph: StructuredGraph) = {
-    // Initialization
+  def inc(t: Int): Int = {
+    val f = compile((x: Int) => x + 1)(buildInc)
+    3 // f(t)
+  }
+
+  def buildRet(graph: StructuredGraph) = {
+       // Initialization
     var method = graph.method();
     var entryBCI = graph.getEntryBCI();
     var profilingInfo = method.getProfilingInfo();
@@ -51,9 +56,46 @@ object GraphBuilder {
     lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
 
 
-    // val removeLocals = new java.util.BitSet()
-    // removeLocals.set(0)
-    // frameState.clearNonLiveLocals(removeLocals);
+    frameState.cleanupDeletedPhis();
+    frameState.setRethrowException(false);
+    frameState.push(Kind.Int, frameState.loadLocal(1)); // ILOAD_1
+
+    val removeLocals = new java.util.BitSet()
+    removeLocals.set(1)
+    frameState.clearNonLiveLocals(removeLocals);
+
+    // return
+    frameState.cleanupDeletedPhis();
+    frameState.setRethrowException(false);
+    graph.add(new ReturnNode(frameState.pop(Kind.Int)))
+
+    val rl1 = new java.util.BitSet()
+    rl1.set(1)
+    frameState.clearNonLiveLocals(rl1);
+
+    graph
+  }
+
+  def buildInc(graph: StructuredGraph) = {
+    // Initialization
+    var method = graph.method();
+    println(method)
+    var entryBCI = graph.getEntryBCI();
+    var profilingInfo = method.getProfilingInfo();
+    var frameState = new FrameStateBuilder(method, graph, config.eagerResolving());
+
+
+    // Construction
+    var lastInstr = graph.start()
+    // finish the start block
+    lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
+
+    Debug.dump(graph, "After fullUnroll %s");
+
+    val removeLocals = new java.util.BitSet()
+    removeLocals.set(0)
+    removeLocals.set(1)
+    frameState.clearNonLiveLocals(removeLocals);
     frameState.cleanupDeletedPhis();
     frameState.setRethrowException(false);
     frameState.push(Kind.Int, frameState.loadLocal(1));
@@ -73,7 +115,7 @@ object GraphBuilder {
 
   // run default graal compiler on argument 7closure
   // f is here because I do not know how to create a new class :)
-  def compile[A:Manifest,B:Manifest](f: A => B): A => B = {
+  def compile[A:Manifest,B:Manifest](f: A => B)(build: StructuredGraph => StructuredGraph): A => B = {
     assert(manifest[A] == manifest[Int] && manifest[B] == manifest[Int]) // for now ...
 
     val cls = f.getClass
@@ -84,18 +126,18 @@ object GraphBuilder {
     val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
     graphBuilderPhase(sampleGraph)
     new DeadCodeEliminationPhase().apply(sampleGraph);
-
     Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
-
     val graph = build(new StructuredGraph(method))
-    new DeadCodeEliminationPhase().apply(graph)
     Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
-
+    new DeadCodeEliminationPhase().apply(graph)
+    Util.printGraph("AFTER_PARSING (dead-code)", Node.Verbosity.Debugger)(graph)
     val plan = new PhasePlan();
-    // plan.addPhase(PhasePosition.AFTER_PARSING, graphBuilderPhase);
+    plan.addPhase(PhasePosition.AFTER_PARSING, graphBuilderPhase);
     plan.addPhase(PhasePosition.HIGH_LEVEL, Util.printGraph("HIGH_LEVEL"))
     plan.addPhase(PhasePosition.MID_LEVEL, Util.printGraph("MID_LEVEL"))
     val result = Util.topScope {
+      Debug.dump(graph, "adsf")
+      println("Dump enabled: " + DebugScope.getInstance.isDumpEnabled)
       GraalCompiler.compileMethod(runtime, backend, target ,method, graph, cache, plan, OptimisticOptimizations.ALL)
     }
 
@@ -111,4 +153,3 @@ object GraphBuilder {
   }
 
 }
-
