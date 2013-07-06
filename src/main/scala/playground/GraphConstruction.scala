@@ -34,12 +34,12 @@ object GraphBuilder {
 
   def ret(i: Int): Int = {
     val f = compile((x: Int) => x)(buildRet)
-    1 // f(i)
+    f(i)
   }
 
   def inc(t: Int): Int = {
     val f = compile((x: Int) => x + 1)(buildInc)
-    3 // f(t)
+    f(t)
   }
 
   def buildRet(graph: StructuredGraph) = {
@@ -67,11 +67,12 @@ object GraphBuilder {
     // return
     frameState.cleanupDeletedPhis();
     frameState.setRethrowException(false);
-    graph.add(new ReturnNode(frameState.pop(Kind.Int)))
-
-    val rl1 = new java.util.BitSet()
-    rl1.set(1)
-    frameState.clearNonLiveLocals(rl1);
+    
+    val node = frameState.pop(Kind.Int)
+    frameState.clearStack(); 
+    val retNode = new ReturnNode(node)
+    graph.add(retNode)
+    lastInstr.setNext(retNode)
 
     graph
   }
@@ -90,29 +91,32 @@ object GraphBuilder {
     // finish the start block
     lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
 
-    Debug.dump(graph, "After fullUnroll %s");
-
-    val removeLocals = new java.util.BitSet()
-    removeLocals.set(0)
-    removeLocals.set(1)
-    frameState.clearNonLiveLocals(removeLocals);
     frameState.cleanupDeletedPhis();
+    val bs = new java.util.BitSet()
+    bs.set(1)    
+    frameState.clearNonLiveLocals(bs)// TODO
     frameState.setRethrowException(false);
     frameState.push(Kind.Int, frameState.loadLocal(1));
     frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
 
     val y = frameState.pop(Kind.Int)
-    val x = frameState.pop(Kind.Int)
+    val x = frameState.pop(Kind.Int) 
     val v = new IntegerAddNode(Kind.Int, x, y)
     val result = graph.unique(v)
     frameState.push(Kind.Int, result)
     // return
     frameState.cleanupDeletedPhis();
     frameState.setRethrowException(false);
-    graph.add(new ReturnNode(frameState.pop(Kind.Int)))
-    graph
-  }
 
+    val node = frameState.pop(Kind.Int)
+    frameState.clearStack();
+    val retNode = new ReturnNode(node)
+    graph.add(retNode)
+    lastInstr.setNext(retNode)
+
+    graph
+  } 
+ 
   // run default graal compiler on argument 7closure
   // f is here because I do not know how to create a new class :)
   def compile[A:Manifest,B:Manifest](f: A => B)(build: StructuredGraph => StructuredGraph): A => B = {
@@ -122,34 +126,38 @@ object GraphBuilder {
     val reflectMeth = cls.getDeclaredMethod("apply$mcII$sp", classOf[Int])
     val method = runtime.lookupJavaMethod(reflectMeth)
 
-    val sampleGraph = new StructuredGraph(method)
-    val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
-    graphBuilderPhase(sampleGraph)
-    new DeadCodeEliminationPhase().apply(sampleGraph);
-    Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
-    val graph = build(new StructuredGraph(method))
-    Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
-    new DeadCodeEliminationPhase().apply(graph)
-    Util.printGraph("AFTER_PARSING (dead-code)", Node.Verbosity.Debugger)(graph)
-    val plan = new PhasePlan();
-    plan.addPhase(PhasePosition.AFTER_PARSING, graphBuilderPhase);
+    val plan = new PhasePlan();    
     plan.addPhase(PhasePosition.HIGH_LEVEL, Util.printGraph("HIGH_LEVEL"))
     plan.addPhase(PhasePosition.MID_LEVEL, Util.printGraph("MID_LEVEL"))
-    val result = Util.topScope {
-      Debug.dump(graph, "adsf")
-      println("Dump enabled: " + DebugScope.getInstance.isDumpEnabled)
-      GraalCompiler.compileMethod(runtime, backend, target ,method, graph, cache, plan, OptimisticOptimizations.ALL)
-    }
+    val result = Util.topScope(method) {
 
-    Util.printGraph("FINAL")(graph)
-    println("===== DONE")
+      // Building how the graph should look like
+      val sampleGraph = new StructuredGraph(method)
+      val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
+      graphBuilderPhase.apply(sampleGraph)
+      new DeadCodeEliminationPhase().apply(sampleGraph);
+      Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
+      val graph = build(new StructuredGraph(method))
+      Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
+      new DeadCodeEliminationPhase().apply(graph)
+      Util.printGraph("AFTER_PARSING (dead-code)", Node.Verbosity.Debugger)(graph)
+
+      Debug.dump(sampleGraph, "Parsed")
+      Debug.dump(graph, "Constructed")
+      val res = GraalCompiler.compileMethod(runtime, backend, target ,method, graph, cache, plan, OptimisticOptimizations.ALL)
+      println("Scope " + com.oracle.graal.debug.internal.DebugScope.getInstance.getQualifiedName)
+      Util.printGraph("FINAL")(graph)
+      println("===== DONE")
+
+      res
+    }    
 
     val compiledMethod = runtime.addMethod(method, result, null)
 
     { (x:A) =>
       val y = compiledMethod.executeVarargs(f, x.asInstanceOf[AnyRef])
       y.asInstanceOf[B]
-    }
+    }  
   }
 
-}
+}       

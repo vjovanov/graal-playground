@@ -15,9 +15,9 @@ class TestInline1 extends FileDiffSuite {
     assert(GraphBuilder.ret(1) == 1)
   }
 
-  /*def testInc = withOutFileChecked(prefix+"inc") {
+  def testInc = withOutFileChecked(prefix+"inc") {
     assert(GraphBuilder.inc(2) == 3)
-  }*/
+  }
 
 
 }

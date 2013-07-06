@@ -26,23 +26,20 @@ object Util {
   val runtime = HotSpotGraalRuntime.getInstance().getRuntime();
   val compiler = HotSpotGraalRuntime.getInstance().getCompiler();
 
-  def topScope[A](body: => A) = {
+  def topScope[A](method: ResolvedJavaMethod)(body: => A) = {
     //val hotspotDebugConfig = new HotSpotDebugConfig(GraalOptions.Log + ",Escape", GraalOptions.Meter, GraalOptions.Time, GraalOptions.Dump, GraalOptions.MethodFilter, System.out)
     val hotspotDebugConfig =
       new GraalDebugConfig(GraalOptions.Log,
        GraalOptions.Meter,
        GraalOptions.Time,
        "Playground",
-       "GraphBuilder$$anonfun$1.apply$mcII$sp",
+       "playground.GraphBuilder$$anonfun$1.apply$mcII$sp",
        System.out,
        List(new GraphPrinterDumpHandler()))
-
+           
     Debug.setConfig(hotspotDebugConfig)
-    println("OS Dump enabled: " + DebugScope.getInstance.isDumpEnabled)
-    Debug.scope("Playground", new Callable[A] {
-        def call: A = {
-          println(Debug.currentScope() + " ----- " + hotspotDebugConfig)
-          println("Body " + DebugScope.getInstance().isDumpEnabled)
+    Debug.scope("Playground", method, new Callable[A] {
+        def call: A = {                   
           body
         }
     });

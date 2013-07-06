@@ -20,28 +20,43 @@ locks: []
 (1,2)
 4|Return { stamp=Void, probability=0.0,  }(2)
 ----- AFTER_PARSING  method calls 
+===== AFTER_PARSING (dead-code)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+locals: [1, 2]
+stack: []
+locks: []
+(1,2)
+4|Return { stamp=Void, probability=0.0,  }(2)
+----- AFTER_PARSING (dead-code) method calls 
 ===== HIGH_LEVEL
-0|StartNode(5)
+0|StartNode(3)
+1|Local(0)()
 2|Local(1)()
-5|FrameState@0(2)
-7|Return(2)
-8|LogicConstant()
-9|LogicConstant()
+3|FrameState@0(1,2)
+4|Return(2)
+5|LogicConstant()
+6|LogicConstant()
 ----- HIGH_LEVEL method calls 
 ===== MID_LEVEL
-0|StartNode(5)
+0|StartNode(3)
+1|Local(0)()
 2|Local(1)()
-5|FrameState@0(2)
-7|Return(2)
-10|LogicConstant()
-11|LogicConstant()
+3|FrameState@0(1,2)
+4|Return(2)
+7|LogicConstant()
+8|LogicConstant()
 ----- MID_LEVEL method calls 
+Scope Playground
 ===== FINAL
-0|StartNode(5)
+0|StartNode(3)
+1|Local(0)()
 2|Local(1)()
-5|FrameState@0(2)
-7|Return(2)
-10|LogicConstant()
-11|LogicConstant()
+3|FrameState@0(1,2)
+4|Return(2)
+7|LogicConstant()
+8|LogicConstant()
 ----- FINAL method calls 
 ===== DONE
