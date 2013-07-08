@@ -250,7 +250,7 @@ public abstract class LancetGraphBuilder extends Phase {
         return stream.currentBCI();
     }
 
-    private void loadLocal(int index, Kind kind) {
+    protected void loadLocal(int index, Kind kind) {
         frameState.push(kind, frameState.loadLocal(index));
     }
 
@@ -1225,7 +1225,7 @@ public abstract class LancetGraphBuilder extends Phase {
         }
     }
 
-    private ConstantNode appendConstant(Constant constant) {
+    protected ConstantNode appendConstant(Constant constant) {
         assert constant != null;
         return ConstantNode.forConstant(constant, runtime, currentGraph);
     }

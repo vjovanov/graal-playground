@@ -21,13 +21,17 @@ import com.oracle.graal.debug.internal._;
 import collection.JavaConversions._
 
 trait LancetIR {
+  var stackIndex = 0
   case class Sym(id: Int)
-  trait Exp 
+  trait Exp {
+    val index = stackIndex
+    stackIndex += 1
+  }
   
   var syms: Map[Sym, Exp] 
 
   case class Const(l: Int) extends Exp
-  case class Var(l: Sym, arg: Boolean = true) extends Exp
+  case class Var() extends Exp
   case class Plus(l: Sym, r: Sym) extends Exp
   case class Times(l: Sym, r: Sym) extends Exp  
 }
@@ -50,11 +54,23 @@ extends LancetGraphBuilder(rt, config, optimisticOpts) {
     bs.set(1)
     frameState.clearNonLiveLocals(bs)
 
-    
-    // traversal
-    ir.syms.foreach {
-      case x => println(x)
-    }
+    import ir._
+
+    def pushOp(e: Sym) = syms(e) match {      
+      case Const(l) => 
+        frameState.ipush(appendConstant(Constant.forInt(l)))
+      case x => loadLocal(x.index, Kind.Int)
+    }    
+
+    // Will traversal in LMS need to change?
+    ir.syms.foreach { tp => tp._2 match {
+      case Plus(l, r) => 
+        pushOp(l)
+        pushOp(r)
+        // int plus
+      case Const(k) =>
+      case Var() =>
+    }}
 
     // function return. No exceptions, no loops
     frameState.cleanupDeletedPhis();
