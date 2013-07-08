@@ -19,5 +19,8 @@ class TestInline1 extends FileDiffSuite {
     assert(GraphBuilder.inc(2) == 3)
   }
 
+  def testIf = withOutFileChecked(prefix+"if") {
+    assert(GraphBuilder.cond(2) == 1)
+  }
 
 }

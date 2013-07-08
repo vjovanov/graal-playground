@@ -89,7 +89,7 @@ public abstract class LancetGraphBuilder extends Phase {
     private ExceptionDispatchBlock unwindBlock;
     private Block returnBlock;
 
-    protected FixedWithNextNode lastInstr;                 // the last instruction added    
+    protected FixedWithNextNode lastInstr;                 // the last instruction added
 
     private final GraphBuilderConfiguration graphBuilderConfig;
     private final OptimisticOptimizations optimisticOpts;
@@ -158,7 +158,7 @@ public abstract class LancetGraphBuilder extends Phase {
     }
 
     protected abstract void generateGraalIR();
-    
+
     /*
     // compute the block map, setup exception handlers and get the entrypoint(s)
         BciBlockMapping blockMap = createBlockMap();
@@ -201,7 +201,7 @@ public abstract class LancetGraphBuilder extends Phase {
             TTY.println(MetaUtil.indent(MetaUtil.profileToString(profilingInfo, method, CodeUtil.NEW_LINE), "  "));
         }
 
-        
+
         generateGraalIR();
 
         Debug.dump(currentGraph, "After Lancet IR generation");
@@ -623,7 +623,7 @@ public abstract class LancetGraphBuilder extends Phase {
         ifNode(x, cond, y);
     }
 
-    private void genIfSame(Kind kind, Condition cond) {
+    protected void genIfSame(Kind kind, Condition cond) {
         ValueNode y = frameState.pop(kind);
         ValueNode x = frameState.pop(kind);
         assert !x.isDeleted() && !y.isDeleted();
@@ -740,7 +740,7 @@ public abstract class LancetGraphBuilder extends Phase {
     /**
      * Gets the kind of array elements for the array type code that appears in a
      * {@link Bytecodes#NEWARRAY} bytecode.
-     * 
+     *
      * @param code the array type code
      * @return the kind from the array type code
      */
@@ -1152,7 +1152,7 @@ public abstract class LancetGraphBuilder extends Phase {
 
     /**
      * Helper function that sums up the probabilities of all keys that lead to a specific successor.
-     * 
+     *
      * @return an array of size successorCount with the accumulated probability for each successor.
      */
     private static double[] successorProbabilites(int successorCount, int[] keySuccessors, double[] keyProbabilities) {
@@ -1170,7 +1170,7 @@ public abstract class LancetGraphBuilder extends Phase {
         int nofCases = bs.numberOfCases();
         double[] keyProbabilities = switchProbability(nofCases + 1, bci);
 
-        Map<Integer, SuccessorInfo> bciToBlockSuccessorIndex = new HashMap<>();
+        Map<Integer, SuccessorInfo> bciToBlockSuccessorIndex = new HashMap<Integer, SuccessorInfo>();
         for (int i = 0; i < currentBlock.successors.size(); i++) {
             assert !bciToBlockSuccessorIndex.containsKey(currentBlock.successors.get(i).startBci);
             if (!bciToBlockSuccessorIndex.containsKey(currentBlock.successors.get(i).startBci)) {
@@ -1178,7 +1178,7 @@ public abstract class LancetGraphBuilder extends Phase {
             }
         }
 
-        ArrayList<Block> actualSuccessors = new ArrayList<>();
+        ArrayList<Block> actualSuccessors = new ArrayList<Block>();
         int[] keys = new int[nofCases];
         int[] keySuccessors = new int[nofCases + 1];
         int deoptSuccessorIndex = -1;
@@ -1271,7 +1271,7 @@ public abstract class LancetGraphBuilder extends Phase {
                 LoopExitNode lastLoopExit = null;
 
                 int pos = 0;
-                ArrayList<Block> exitLoops = new ArrayList<>(Long.bitCount(exits));
+                ArrayList<Block> exitLoops = new ArrayList<Block>(Long.bitCount(exits));
                 do {
                     long lMask = 1L << pos;
                     if ((exits & lMask) != 0) {
