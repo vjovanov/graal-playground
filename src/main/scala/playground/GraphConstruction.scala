@@ -46,38 +46,72 @@ object GraphBuilder {
     f(t)
   }
 
+
   def buildIf(graph: StructuredGraph) = {
-       // Initialization
-    var method = graph.method();
-    var entryBCI = graph.getEntryBCI();
-    var profilingInfo = method.getProfilingInfo();
-    var frameState = new FrameStateBuilder(method, graph, config.eagerResolving());
+    val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+       def generateGraalIR() = {
+         val removeLocals = new java.util.BitSet()
+         removeLocals.set(1)
+         frameState.clearNonLiveLocals(removeLocals);
 
-    val removeLocals = new java.util.BitSet()
-    removeLocals.set(1)
-    frameState.clearNonLiveLocals(removeLocals);
+         // finish the start block
+         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0))
 
-    // Construction
-    var lastInstr = graph.start();
-    // finish the start block
-    lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
+         frameState.cleanupDeletedPhis()
+         frameState.setRethrowException(false);
+         frameState.push(Kind.Int, frameState.loadLocal(1)); // ILOAD_1
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
 
-    frameState.cleanupDeletedPhis();
-    frameState.setRethrowException(false);
-    frameState.push(Kind.Int, frameState.loadLocal(1)); // ILOAD_1
-    frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
-    // super.genIfSame(Kind.Int, Condition.LT)
+         genIfSame(Kind.Int, Condition.LE);
 
-    // // return
-    frameState.cleanupDeletedPhis();
-    frameState.setRethrowException(false);
+         // then
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
+         // appendGoto(createTarget(probability, currentBlock.successors.get(0), frameState));
+         var exitState = frameState.copy()
+         val target = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode())
+         appendGoto({ // inlined create target
+          val result = new LancetGraphBuilder.Target(target, frameState);
+          result.fixed
+         })
 
-    val node = frameState.pop(Kind.Int)
-    frameState.clearStack();
-    val retNode = new ReturnNode(node)
-    graph.add(retNode)
-    lastInstr.setNext(retNode)
+         // else
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_2, runtime, graph))
+         // appendGoto(createTarget(block.successors.get(0), frameState));
 
+         // The EndNode for the already existing edge.
+         val end = currentGraph.add(new EndNode());
+         // The MergeNode that replaces the placeholder.
+         val mergeNode = currentGraph.add(new MergeNode());
+         appendGoto({ // inlined create target
+            val next = target.next();
+
+            target.setNext(end);
+            mergeNode.addForwardEnd(end);
+            mergeNode.setNext(next);
+
+            // The EndNode for the newly merged edge.
+            val newEnd = currentGraph.add(new EndNode())
+            val target2 = new LancetGraphBuilder.Target(newEnd, frameState);
+            val result = target2.fixed;
+            exitState.merge(mergeNode, target2.state);
+            mergeNode.addForwardEnd(newEnd);
+            result
+         })
+         mergeNode.setStateAfter(frameState.create(10))// darn what do we put here?
+
+         // return
+         frameState.cleanupDeletedPhis();
+         frameState.setRethrowException(false);
+
+         val node = frameState.pop(Kind.Int)
+         frameState.clearStack();
+         val retNode = new ReturnNode(node)
+         graph.add(retNode)
+         lastInstr.setNext(retNode)
+       }
+    }
+
+    phase.apply(graph)
     graph
   }
 

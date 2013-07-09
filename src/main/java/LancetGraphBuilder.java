@@ -105,7 +105,7 @@ public abstract class LancetGraphBuilder extends Phase {
      * jump. When the block is seen the second time, a MergeNode is created to correctly merge the
      * now two different predecessor states.
      */
-    private static class BlockPlaceholderNode extends FixedWithNextNode implements Node.IterableNodeType {
+    public static class BlockPlaceholderNode extends FixedWithNextNode implements Node.IterableNodeType {
 
         public BlockPlaceholderNode() {
             super(StampFactory.forVoid());
@@ -1252,10 +1252,10 @@ public abstract class LancetGraphBuilder extends Phase {
         return x;
     }
 
-    private static class Target {
+    public static class Target {
 
-        FixedNode fixed;
-        FrameStateBuilder state;
+        public FixedNode fixed;
+        public FrameStateBuilder state;
 
         public Target(FixedNode fixed, FrameStateBuilder state) {
             this.fixed = fixed;
@@ -1556,7 +1556,7 @@ public abstract class LancetGraphBuilder extends Phase {
         }
     }
 
-    private void appendGoto(FixedNode target) {
+    protected void appendGoto(FixedNode target) {
         if (lastInstr != null) {
             lastInstr.setNext(target);
         }
