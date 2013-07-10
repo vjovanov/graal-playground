@@ -33,8 +33,8 @@ object GraphBuilder {
   val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
 
   def cond(arg: Int): Int = {
-    val f = compile{x: Int => if(x > 1) 3 else 2}(buildIf)
-    1 //f(arg)
+    val f = compile{x: Int => if(x > 0) 1 else -1}(buildIf)
+    f(arg)
   }
   def ret(i: Int): Int = {
     val f = compile((x: Int) => x)(buildRet)
@@ -54,17 +54,23 @@ object GraphBuilder {
          removeLocals.set(1)
          frameState.clearNonLiveLocals(removeLocals);
 
+         lastInstr = graph.start()
          // finish the start block
          lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0))
 
          frameState.cleanupDeletedPhis()
          frameState.setRethrowException(false);
          frameState.push(Kind.Int, frameState.loadLocal(1)); // ILOAD_1
-         frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_0, runtime, graph))
 
-         genIfSame(Kind.Int, Condition.LE);
-
+         ifNode(frameState.pop(Kind.Int), Condition.LE,frameState.pop(Kind.Int), true);
+         val frameStateThen = frameState.copy()
+         val frameStateElse = frameState.copy()
          // then
+         // here we should have a new lastInstr, and the new frameState
+         lastInstr = thn
+         frameState = frameStateThen
+
          frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
          // appendGoto(createTarget(probability, currentBlock.successors.get(0), frameState));
          var exitState = frameState.copy()
@@ -75,7 +81,9 @@ object GraphBuilder {
          })
 
          // else
-         frameState.ipush(ConstantNode.forConstant(Constant.INT_2, runtime, graph))
+         lastInstr = els
+         frameState = frameStateElse
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_MINUS_1, runtime, graph))
          // appendGoto(createTarget(block.successors.get(0), frameState));
 
          // The EndNode for the already existing edge.
@@ -97,6 +105,8 @@ object GraphBuilder {
             mergeNode.addForwardEnd(newEnd);
             result
          })
+         frameState = exitState
+         lastInstr = mergeNode
          mergeNode.setStateAfter(frameState.create(10))// darn what do we put here?
 
          // return
@@ -212,7 +222,7 @@ object GraphBuilder {
       Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
       val graph = build(new StructuredGraph(method))
       Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
-      new DeadCodeEliminationPhase().apply(graph)
+      // new DeadCodeEliminationPhase().apply(graph)
       Util.printGraph("AFTER_PARSING (dead-code)", Node.Verbosity.Debugger)(graph)
 
       Debug.dump(sampleGraph, "Parsed")
