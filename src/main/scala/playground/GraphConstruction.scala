@@ -30,7 +30,22 @@ object GraphBuilder {
   val cache = HotSpotGraalRuntime.getInstance().getCache();
 
 
+  
+
   val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
+
+  def loop(arg: Int) {
+    val f = compile{arg: Int =>
+      var sum = 0
+      var i = 0
+      while (i < arg) {
+        sum += i
+        i += 1
+      }
+      sum
+    }(buildIf)
+    (0 until arg).sum    
+  }
 
   def cond(arg: Int): Int = {
     val f = compile{x: Int => if(x > 0) 1 else -1}(buildIf)
@@ -218,7 +233,7 @@ object GraphBuilder {
       val sampleGraph = new StructuredGraph(method)
       val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
       graphBuilderPhase.debugApply(sampleGraph)
-      new DeadCodeEliminationPhase().apply(sampleGraph);
+      // new DeadCodeEliminationPhase().apply(sampleGraph);
       Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
       val graph = build(new StructuredGraph(method))
       Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
