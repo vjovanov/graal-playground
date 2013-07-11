@@ -33,13 +33,13 @@ object Util {
        GraalOptions.Meter,
        GraalOptions.Time,
        "Playground",
-       "playground.GraphBuilder$$anonfun$0.apply$mcII$sp",
+       "playground.GraphBuilder$$anonfun$1.apply$mcII$sp",
        System.out,
        List(new GraphPrinterDumpHandler()))
-           
+
     Debug.setConfig(hotspotDebugConfig)
     Debug.scope("Playground", method, new Callable[A] {
-        def call: A = {                   
+        def call: A = {
           body
         }
     });

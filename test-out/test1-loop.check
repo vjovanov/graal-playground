@@ -1,0 +1,692 @@
+===== AFTER_PARSING (required)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 22) { stamp=i, type=Value,  }(7,4,22)
+10|Phi(4 24) { stamp=i, type=Value,  }(7,4,24)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:39) [bci: 4]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|LoopExit { stamp=Dependency, probability=0.0,  }(18,7)
+16|ValueProxy { stamp=i, type=Value,  }(14,9)
+17|ValueProxy { stamp=i, type=Value,  }(14,10)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 16, 17]
+stack: []
+locks: []
+(2,16,17)
+20|Begin { stamp=Dependency, probability=0.0,  }()
+21|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+22|+ { stamp=i, isStrictFP=false,  }(9,10)
+23|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+24|+ { stamp=i, isStrictFP=false,  }(10,23)
+25|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+27|Return { stamp=Void, probability=0.0,  }(16)
+----- AFTER_PARSING (required) method calls 
+===== AFTER_PARSING 
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING  method calls 
+===== AFTER_PARSING (dead-code)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING (dead-code) method calls 
+===== HIGH_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+9|Phi(4 18)(7,4,18)
+10|Phi(4 23)(7,4,23)
+11|FrameState@20(2,9,10)
+12|<(10,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(10,9)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(9)
+23|+(10,19)
+24|LogicConstant()
+25|LogicConstant()
+----- HIGH_LEVEL method calls 
+===== MID_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+----- MID_LEVEL method calls 
+Scope Playground
+===== FINAL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+42|Safepoint()
+----- FINAL method calls 
+===== DONE
+===== AFTER_PARSING (required)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 22) { stamp=i, type=Value,  }(7,4,22)
+10|Phi(4 24) { stamp=i, type=Value,  }(7,4,24)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:39) [bci: 4]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|LoopExit { stamp=Dependency, probability=0.0,  }(18,7)
+16|ValueProxy { stamp=i, type=Value,  }(14,9)
+17|ValueProxy { stamp=i, type=Value,  }(14,10)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 16, 17]
+stack: []
+locks: []
+(2,16,17)
+20|Begin { stamp=Dependency, probability=0.0,  }()
+21|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+22|+ { stamp=i, isStrictFP=false,  }(9,10)
+23|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+24|+ { stamp=i, isStrictFP=false,  }(10,23)
+25|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+27|Return { stamp=Void, probability=0.0,  }(16)
+----- AFTER_PARSING (required) method calls 
+===== AFTER_PARSING 
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING  method calls 
+===== AFTER_PARSING (dead-code)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING (dead-code) method calls 
+===== HIGH_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+9|Phi(4 18)(7,4,18)
+10|Phi(4 23)(7,4,23)
+11|FrameState@20(2,9,10)
+12|<(10,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(10,9)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(9)
+23|+(10,19)
+24|LogicConstant()
+25|LogicConstant()
+----- HIGH_LEVEL method calls 
+===== MID_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+----- MID_LEVEL method calls 
+Scope Playground
+===== FINAL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+42|Safepoint()
+----- FINAL method calls 
+===== DONE
+===== AFTER_PARSING (required)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 22) { stamp=i, type=Value,  }(7,4,22)
+10|Phi(4 24) { stamp=i, type=Value,  }(7,4,24)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:39) [bci: 4]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|LoopExit { stamp=Dependency, probability=0.0,  }(18,7)
+16|ValueProxy { stamp=i, type=Value,  }(14,9)
+17|ValueProxy { stamp=i, type=Value,  }(14,10)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 16, 17]
+stack: []
+locks: []
+(2,16,17)
+20|Begin { stamp=Dependency, probability=0.0,  }()
+21|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+22|+ { stamp=i, isStrictFP=false,  }(9,10)
+23|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+24|+ { stamp=i, isStrictFP=false,  }(10,23)
+25|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+27|Return { stamp=Void, probability=0.0,  }(16)
+----- AFTER_PARSING (required) method calls 
+===== AFTER_PARSING 
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING  method calls 
+===== AFTER_PARSING (dead-code)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING (dead-code) method calls 
+===== HIGH_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+9|Phi(4 18)(7,4,18)
+10|Phi(4 23)(7,4,23)
+11|FrameState@20(2,9,10)
+12|<(10,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(10,9)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(9)
+23|+(10,19)
+24|LogicConstant()
+25|LogicConstant()
+----- HIGH_LEVEL method calls 
+===== MID_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+----- MID_LEVEL method calls 
+Scope Playground
+===== FINAL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+42|Safepoint()
+----- FINAL method calls 
+===== DONE
+===== AFTER_PARSING (required)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 22) { stamp=i, type=Value,  }(7,4,22)
+10|Phi(4 24) { stamp=i, type=Value,  }(7,4,24)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:39) [bci: 4]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|LoopExit { stamp=Dependency, probability=0.0,  }(18,7)
+16|ValueProxy { stamp=i, type=Value,  }(14,9)
+17|ValueProxy { stamp=i, type=Value,  }(14,10)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 16, 17]
+stack: []
+locks: []
+(2,16,17)
+20|Begin { stamp=Dependency, probability=0.0,  }()
+21|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+22|+ { stamp=i, isStrictFP=false,  }(9,10)
+23|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+24|+ { stamp=i, isStrictFP=false,  }(10,23)
+25|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+27|Return { stamp=Void, probability=0.0,  }(16)
+----- AFTER_PARSING (required) method calls 
+===== AFTER_PARSING 
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING  method calls 
+===== AFTER_PARSING (dead-code)
+0|StartNode { stamp=Dependency, probability=0.0,  }(3)
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+2|Local(1) { stamp=i, index=1,  }()
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:37) [bci: 0]
+locals: [_, 2, _, _]
+stack: []
+locks: []
+(2)
+4|Const(0) { stamp=i [0] #0, rawvalue=0, value=int[0|0x0],  }()
+6|EndNode { stamp=Void, probability=0.0,  }()
+7|LoopBegin { stamp=Dependency, loopFrequency=1.0, unswitches=0, nextEndIndex=1, probability=0.0,  }(11,6)
+9|Phi(4 18) { stamp=i, type=Value,  }(7,4,18)
+10|Phi(4 20) { stamp=i, type=Value,  }(7,4,20)
+playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:43) [bci: 20]
+locals: [_, 2, 9, 10]
+stack: []
+locks: []
+(2,9,10)
+12|< { stamp=Condition,  }(10,2)
+14|Begin { stamp=Dependency, probability=0.0,  }()
+16|Begin { stamp=Dependency, probability=0.0,  }()
+17|If { trueSuccessorProbability=0.5, stamp=Void, probability=0.0,  }(12)
+18|+ { stamp=i, isStrictFP=false,  }(10,9)
+19|Const(1) { stamp=i [1] #1, rawvalue=1, value=int[1|0x1],  }()
+20|+ { stamp=i, isStrictFP=false,  }(19,10)
+21|LoopEnd { canSafepoint=true, stamp=Void, probability=0.0, endIndex=0,  }(7)
+22|Return { stamp=Void, probability=0.0,  }(9)
+----- AFTER_PARSING (dead-code) method calls 
+===== HIGH_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+9|Phi(4 18)(7,4,18)
+10|Phi(4 23)(7,4,23)
+11|FrameState@20(2,9,10)
+12|<(10,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(10,9)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(9)
+23|+(10,19)
+24|LogicConstant()
+25|LogicConstant()
+----- HIGH_LEVEL method calls 
+===== MID_LEVEL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+----- MID_LEVEL method calls 
+Scope Playground
+===== FINAL
+0|StartNode(3)
+2|Local(1)()
+3|FrameState@0(2)
+4|Const(0)()
+6|EndNode()
+7|LoopBegin(11,6)
+11|FrameState@20(2,37,38)
+12|<(38,2)
+14|Begin()
+16|Begin()
+17|If(12)
+18|+(38,37)
+19|Const(1)()
+21|LoopEnd(7)
+22|Return(37)
+23|+(38,19)
+28|<(4,2)
+29|Begin()
+30|Begin()
+31|If(28)
+34|Return(4)
+37|Phi(4 18)(7,4,18)
+38|Phi(19 23)(7,19,23)
+40|LogicConstant()
+41|LogicConstant()
+42|Safepoint()
+----- FINAL method calls 
+===== DONE

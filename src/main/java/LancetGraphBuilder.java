@@ -254,7 +254,7 @@ public abstract class LancetGraphBuilder extends Phase {
         frameState.push(kind, frameState.loadLocal(index));
     }
 
-    private void storeLocal(Kind kind, int index) {
+    protected void storeLocal(Kind kind, int index) {
         frameState.storeLocal(index, frameState.pop(kind));
     }
 
@@ -565,8 +565,7 @@ public abstract class LancetGraphBuilder extends Phase {
         appendGoto(createTarget(probability, currentBlock.successors.get(0), frameState));
         assert currentBlock.numNormalSuccessors() == 1;
     }
-
-    protected void ifNode(ValueNode x, Condition cond, ValueNode y, Boolean elseExists) {
+    protected scala.Tuple2<FixedWithNextNode, FixedWithNextNode> ifNode(ValueNode x, Condition cond, ValueNode y, Boolean elseExists) {
         assert !x.isDeleted() && !y.isDeleted();
         if (!elseExists) { // in args (createTarget)
             // appendGoto(createTarget(trueBlock, frameState));
@@ -574,12 +573,7 @@ public abstract class LancetGraphBuilder extends Phase {
             // return;
         }
 
-        /*double probability = profilingInfo.getBranchTakenProbability(bci());
-        if (probability < 0) {
-            assert probability == -1 : "invalid probability";
-            Debug.log("missing probability in %s at bci %d", method, bci());
-        }*/
-
+        // Maybe this can be used with the cost models???
         double probability = 0.5;
 
         // the mirroring and negation operations get the condition into canonical form
@@ -603,24 +597,19 @@ public abstract class LancetGraphBuilder extends Phase {
         }
         condition = currentGraph.unique(condition);
 
-        // TODO block.firstInstruction = currentGraph.add(new BlockPlaceholderNode());
-        // TODO block.entryState = target.state == state ? state.copy() : target.state;
-        // TODO block.entryState.clearNonLiveLocals(block.localsLiveIn);
-        thn = currentGraph.add(new BlockPlaceholderNode());
+        FixedWithNextNode thn = currentGraph.add(new BlockPlaceholderNode());
         FixedNode target = new Target(thn, frameState).fixed;
         BeginNode trueSuccessor = BeginNode.begin(target);
 
-        // TODO block.firstInstruction = currentGraph.add(new BlockPlaceholderNode());
-        // TODO block.entryState = target.state == state ? state.copy() : target.state;
-        // TODO block.entryState.clearNonLiveLocals(block.localsLiveIn);
-        els = currentGraph.add(new BlockPlaceholderNode());
+        FixedWithNextNode els = currentGraph.add(new BlockPlaceholderNode());
         FixedNode target1 = new Target(els, frameState).fixed;
         BeginNode falseSuccessor = BeginNode.begin(target1);
 
         IfNode ifNode = negate ? new IfNode(condition, falseSuccessor, trueSuccessor, 0.5) : new IfNode(condition, trueSuccessor, falseSuccessor, 0.5);
         append(currentGraph.add(ifNode));
+        return new scala.Tuple2<FixedWithNextNode, FixedWithNextNode>(thn, els);
     }
-    public FixedWithNextNode thn, els;
+
     private void ifNode(ValueNode x, Condition cond, ValueNode y) {
         assert !x.isDeleted() && !y.isDeleted();
         assert currentBlock.numNormalSuccessors() == 2;

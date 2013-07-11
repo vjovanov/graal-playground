@@ -30,12 +30,10 @@ object GraphBuilder {
   val cache = HotSpotGraalRuntime.getInstance().getCache();
 
 
-  
-
   val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
 
-  def loop(arg: Int) {
-    val f = compile{arg: Int =>
+  def loop(arg: Int): Int = {
+    val f = compile{ arg: Int =>
       var sum = 0
       var i = 0
       while (i < arg) {
@@ -43,8 +41,9 @@ object GraphBuilder {
         i += 1
       }
       sum
-    }(buildIf)
-    (0 until arg).sum    
+    }(buildLoop)
+
+    f(arg) //(0 until arg).sum    // for now
   }
 
   def cond(arg: Int): Int = {
@@ -61,6 +60,121 @@ object GraphBuilder {
     f(t)
   }
 
+  def buildLoop(graph: StructuredGraph) = {
+    val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+       def generateGraalIR() = {
+         val removeLocals = new java.util.BitSet()
+         removeLocals.set(1)
+         frameState.clearNonLiveLocals(removeLocals);
+
+         lastInstr = graph.start()
+         // finish the start block
+         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0))
+
+         frameState.cleanupDeletedPhis()
+         frameState.setRethrowException(false);
+         // first block
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_0, runtime, graph))
+         storeLocal(Kind.Int, 2) // var sum
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_0, runtime, graph))
+         storeLocal(Kind.Int, 3) // var i
+
+         // initialize the next block
+         val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
+         val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
+         val result = target.fixed;
+         val tmpState = frameState.copy()
+         appendGoto(result)
+         frameState = tmpState
+         lastInstr = nextFirstInstruction
+         // block.entryState.clearNonLiveLocals(block.localsLiveIn);
+
+         // Loop
+         // starting the loop block
+         val preLoopEnd = currentGraph.add(new EndNode());
+         val loopBegin = currentGraph.add(new LoopBeginNode());
+         lastInstr.setNext(preLoopEnd);
+         // Add the single non-loop predecessor of the loop header.
+         loopBegin.addForwardEnd(preLoopEnd);
+         lastInstr = loopBegin;
+
+         // Create phi functions for all local variables and operand stack slots.
+         frameState.insertLoopPhis(loopBegin);
+         loopBegin.setStateAfter(frameState.create(20));
+
+         // We have seen all forward branches. All subsequent backward branches will merge to the
+         // loop header.
+         // This ensures that the loop header has exactly one non-loop predecessor.
+         val loopFristInstr = loopBegin;
+         // We need to preserve the frame state builder of the loop header so that we can merge
+         // values for
+         // phi functions, so make a copy of it.
+         val loopBlockState = frameState.copy(); // why is this not used
+
+         // starting the block
+         frameState.push(Kind.Int, frameState.loadLocal(3));
+         frameState.push(Kind.Int, frameState.loadLocal(1));
+
+         val (thn, els) = ifNode(frameState.pop(Kind.Int), Condition.GT, frameState.pop(Kind.Int), true);
+         val frameStateThen = frameState.copy()
+         val frameStateElse = frameState.copy()
+
+         // starting the then block
+         val entryState = frameState
+         frameState = loopBlockState // should the loop block state go here?
+         lastInstr = thn
+
+         // 9 :  iload_2
+         frameState.push(Kind.Int, frameState.loadLocal(2));
+         // 10:  iload_3
+         frameState.push(Kind.Int, frameState.loadLocal(3));
+
+         // 11:  iadd
+         frameState.push(Kind.Int, graph.unique(new IntegerAddNode(Kind.Int, frameState.pop(Kind.Int), frameState.pop(Kind.Int))))
+
+         // 12:  istore_2
+         storeLocal(Kind.Int, 2)
+
+         // 13:  iload_3
+         frameState.push(Kind.Int, frameState.loadLocal(3));
+
+         // 14:  iconst_1
+         frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
+
+         // 15:  iadd
+         frameState.push(Kind.Int, graph.unique(new IntegerAddNode(Kind.Int, frameState.pop(Kind.Int), frameState.pop(Kind.Int))))
+
+         // 16:  istore_3
+         storeLocal(Kind.Int, 3)
+
+         // 17:  goto  4
+         appendGoto({
+           val target = new LancetGraphBuilder.Target(currentGraph.add(new LoopEndNode(loopBegin)), frameState);
+           val result1 = target.fixed;
+           entryState.merge(loopBegin, target.state);
+           result1
+         })
+         Debug.dump(graph, "Block 3")
+         // else block (after loop)
+         lastInstr = els
+         frameState = frameStateElse
+         frameState.push(Kind.Int, frameState.loadLocal(2));
+
+         // return
+         frameState.cleanupDeletedPhis();
+         frameState.setRethrowException(false);
+
+         val node = frameState.pop(Kind.Int)
+         frameState.clearStack();
+         val retNode = new ReturnNode(node)
+         graph.add(retNode)
+         lastInstr.setNext(retNode)
+       }
+    }
+
+    phase.apply(graph)
+    graph
+  }
 
   def buildIf(graph: StructuredGraph) = {
     val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
@@ -78,7 +192,7 @@ object GraphBuilder {
          frameState.push(Kind.Int, frameState.loadLocal(1)); // ILOAD_1
          frameState.ipush(ConstantNode.forConstant(Constant.INT_0, runtime, graph))
 
-         ifNode(frameState.pop(Kind.Int), Condition.LE,frameState.pop(Kind.Int), true);
+         val (thn, els) = ifNode(frameState.pop(Kind.Int), Condition.LE,frameState.pop(Kind.Int), true);
          val frameStateThen = frameState.copy()
          val frameStateElse = frameState.copy()
          // then
@@ -196,12 +310,7 @@ object GraphBuilder {
     frameState.setRethrowException(false);
     frameState.push(Kind.Int, frameState.loadLocal(1));
     frameState.ipush(ConstantNode.forConstant(Constant.INT_1, runtime, graph))
-
-    val y = frameState.pop(Kind.Int)
-    val x = frameState.pop(Kind.Int)
-    val v = new IntegerAddNode(Kind.Int, x, y)
-    val result = graph.unique(v)
-    frameState.push(Kind.Int, result)
+    frameState.push(Kind.Int, graph.unique(new IntegerAddNode(Kind.Int, frameState.pop(Kind.Int), frameState.pop(Kind.Int))))
     // return
     frameState.cleanupDeletedPhis();
     frameState.setRethrowException(false);
@@ -237,7 +346,7 @@ object GraphBuilder {
       Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
       val graph = build(new StructuredGraph(method))
       Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
-      // new DeadCodeEliminationPhase().apply(graph)
+      new DeadCodeEliminationPhase().apply(graph)
       Util.printGraph("AFTER_PARSING (dead-code)", Node.Verbosity.Debugger)(graph)
 
       Debug.dump(sampleGraph, "Parsed")

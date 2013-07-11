@@ -1,8 +1,8 @@
 ===== AFTER_PARSING (required)
 0|StartNode { stamp=Dependency, probability=0.0,  }(3)
-1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$2;, index=0,  }()
 2|Local(1) { stamp=i, index=1,  }()
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 0]
 locals: [_, 2]
 stack: []
 locks: []
@@ -18,7 +18,7 @@ locks: []
 15|Merge { stamp=Dependency, probability=0.0,  }(18,14,16)
 16|EndNode { stamp=Void, probability=0.0,  }()
 17|Phi(11 13) { stamp=i, type=Value,  }(15,11,13)
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 10]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 10]
 locals: [_, _]
 stack: [17]
 locks: []
@@ -27,9 +27,9 @@ locks: []
 ----- AFTER_PARSING (required) method calls 
 ===== AFTER_PARSING 
 0|StartNode { stamp=Dependency, probability=0.0,  }(3)
-1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$2;, index=0,  }()
 2|Local(1) { stamp=i, index=1,  }()
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 0]
 locals: [_, 2]
 stack: []
 locks: []
@@ -45,7 +45,7 @@ locks: []
 15|Merge { stamp=Dependency, probability=0.0,  }(18,14,16)
 16|EndNode { stamp=Void, probability=0.0,  }()
 17|Phi(11 13) { stamp=i, type=Value,  }(15,11,13)
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 10]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 10]
 locals: [_, 2]
 stack: [17]
 locks: []
@@ -54,9 +54,9 @@ locks: []
 ----- AFTER_PARSING  method calls 
 ===== AFTER_PARSING (dead-code)
 0|StartNode { stamp=Dependency, probability=0.0,  }(3)
-1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$2;, index=0,  }()
 2|Local(1) { stamp=i, index=1,  }()
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 0]
 locals: [_, 2]
 stack: []
 locks: []
@@ -72,7 +72,7 @@ locks: []
 15|Merge { stamp=Dependency, probability=0.0,  }(18,14,16)
 16|EndNode { stamp=Void, probability=0.0,  }()
 17|Phi(11 13) { stamp=i, type=Value,  }(15,11,13)
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 10]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 10]
 locals: [_, 2]
 stack: [17]
 locks: []
@@ -122,9 +122,9 @@ Scope Playground
 ===== DONE
 ===== AFTER_PARSING (required)
 0|StartNode { stamp=Dependency, probability=0.0,  }(3)
-1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$2;, index=0,  }()
 2|Local(1) { stamp=i, index=1,  }()
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 0]
 locals: [_, 2]
 stack: []
 locks: []
@@ -140,7 +140,7 @@ locks: []
 15|Merge { stamp=Dependency, probability=0.0,  }(18,14,16)
 16|EndNode { stamp=Void, probability=0.0,  }()
 17|Phi(11 13) { stamp=i, type=Value,  }(15,11,13)
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 10]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 10]
 locals: [_, _]
 stack: [17]
 locks: []
@@ -149,9 +149,9 @@ locks: []
 ----- AFTER_PARSING (required) method calls 
 ===== AFTER_PARSING 
 0|StartNode { stamp=Dependency, probability=0.0,  }(3)
-1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$2;, index=0,  }()
 2|Local(1) { stamp=i, index=1,  }()
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 0]
 locals: [_, 2]
 stack: []
 locks: []
@@ -167,7 +167,7 @@ locks: []
 15|Merge { stamp=Dependency, probability=0.0,  }(18,14,16)
 16|EndNode { stamp=Void, probability=0.0,  }()
 17|Phi(11 13) { stamp=i, type=Value,  }(15,11,13)
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 10]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 10]
 locals: [_, 2]
 stack: [17]
 locks: []
@@ -176,9 +176,9 @@ locks: []
 ----- AFTER_PARSING  method calls 
 ===== AFTER_PARSING (dead-code)
 0|StartNode { stamp=Dependency, probability=0.0,  }(3)
-1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$1;, index=0,  }()
+1|Local(0) { stamp=a!# Lplayground/GraphBuilder$$anonfun$2;, index=0,  }()
 2|Local(1) { stamp=i, index=1,  }()
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 0]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 0]
 locals: [_, 2]
 stack: []
 locks: []
@@ -194,7 +194,7 @@ locks: []
 15|Merge { stamp=Dependency, probability=0.0,  }(18,14,16)
 16|EndNode { stamp=Void, probability=0.0,  }()
 17|Phi(11 13) { stamp=i, type=Value,  }(15,11,13)
-playground.GraphBuilder$$anonfun$1.apply$mcII$sp(GraphConstruction.scala:36) [bci: 10]
+playground.GraphBuilder$$anonfun$2.apply$mcII$sp(GraphConstruction.scala:50) [bci: 10]
 locals: [_, 2]
 stack: [17]
 locks: []
