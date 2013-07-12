@@ -1018,7 +1018,7 @@ public abstract class LancetGraphBuilder extends Phase {
         }
     }
 
-    private void genInvokeVirtual(JavaMethod target) {
+    protected void genInvokeVirtual(JavaMethod target) {
         if (target instanceof ResolvedJavaMethod) {
             ValueNode[] args = frameState.popArguments(target.getSignature().getParameterSlots(true), target.getSignature().getParameterCount(true));
             genInvokeIndirect(InvokeKind.Virtual, (ResolvedJavaMethod) target, args);
@@ -1048,7 +1048,7 @@ public abstract class LancetGraphBuilder extends Phase {
         }
     }
 
-    private void genInvokeIndirect(InvokeKind invokeKind, ResolvedJavaMethod target, ValueNode[] args) {
+    protected void genInvokeIndirect(InvokeKind invokeKind, ResolvedJavaMethod target, ValueNode[] args) {
         ValueNode receiver = args[0];
         // attempt to devirtualize the call
         ResolvedJavaType klass = target.getDeclaringClass();
@@ -1274,17 +1274,17 @@ public abstract class LancetGraphBuilder extends Phase {
         return ConstantNode.forConstant(constant, runtime, currentGraph);
     }
 
-    private ValueNode append(FixedNode fixed) {
+    protected ValueNode append(FixedNode fixed) {
         lastInstr.setNext(fixed);
         lastInstr = null;
         return fixed;
     }
 
-    private ValueNode append(FixedWithNextNode x) {
+    protected ValueNode append(FixedWithNextNode x) {
         return appendWithBCI(x);
     }
 
-    private static ValueNode append(ValueNode v) {
+    public static ValueNode append(ValueNode v) {
         return v;
     }
 

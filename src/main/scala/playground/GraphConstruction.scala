@@ -20,6 +20,7 @@ import com.oracle.graal.phases.PhasePlan.PhasePosition
 import com.oracle.graal.nodes.calc._
 import com.oracle.graal.debug.internal._;
 import collection.JavaConversions._
+import com.oracle.graal.nodes.java.MethodCallTargetNode.InvokeKind;
 
 object GraphBuilder {
 
@@ -32,6 +33,15 @@ object GraphBuilder {
 
   val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
 
+  def methodCalls(arg: Int) = {
+    val f = compile{ arg: Int =>
+      println("blomp")
+      1
+    }(buildMethod)
+
+    f(arg) // hotspot_assertion fails
+  }
+
   def loop(arg: Int): Int = {
     val f = compile{ arg: Int =>
       var sum = 0
@@ -43,7 +53,7 @@ object GraphBuilder {
       sum
     }(buildLoop)
 
-    f(arg) //(0 until arg).sum    // for now
+    f(arg)
   }
 
   def cond(arg: Int): Int = {
@@ -58,6 +68,65 @@ object GraphBuilder {
   def inc(t: Int): Int = {
     val f = compile((x: Int) => x + 1)(buildInc)
     f(t)
+  }
+
+ def buildMethod(graph: StructuredGraph) = {
+  val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+      def generateGraalIR() = {
+        // Initialization
+        var method = graph.method();
+        println(method)
+        var entryBCI = graph.getEntryBCI();
+        var profilingInfo = method.getProfilingInfo();
+        var frameState = new FrameStateBuilder(method, graph, config.eagerResolving());
+
+
+        // Construction
+        lastInstr = graph.start()
+        // finish the start block
+        lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
+
+        frameState.cleanupDeletedPhis();
+        val removeLocals = new java.util.BitSet()
+        frameState.clearNonLiveLocals(removeLocals)
+        frameState.push(Kind.Object, LancetGraphBuilder.append(ConstantNode.forObject(Predef, runtime, currentGraph)));
+        frameState.push(Kind.Object, LancetGraphBuilder.append(ConstantNode.forObject("blomp", runtime, currentGraph)));
+
+        // how to get the target without the consts
+        val cls = Predef.getClass
+        val reflectMeth = cls.getDeclaredMethod("println", classOf[Any])
+        val resolvedMethod = runtime.lookupJavaMethod(reflectMeth)
+        val args = frameState.popArguments(resolvedMethod.getSignature().getParameterSlots(true), resolvedMethod.getSignature().getParameterCount(true));
+        genInvokeIndirect(InvokeKind.Virtual, resolvedMethod, args);
+        lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(8))
+
+
+        // block stuff
+        val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
+        val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
+        val result = target.fixed;
+        val tmpState = frameState.copy()
+        appendGoto(result)
+        frameState = tmpState
+        frameState.clearNonLiveLocals(removeLocals)
+        lastInstr = nextFirstInstruction
+
+        frameState.ipush(appendConstant(Constant.INT_1));
+
+        // return
+        frameState.cleanupDeletedPhis();
+        frameState.setRethrowException(false);
+
+        val node = frameState.pop(Kind.Int)
+        frameState.clearStack();
+        val retNode = new ReturnNode(node)
+        graph.add(retNode)
+        lastInstr.setNext(retNode)
+      }
+    }
+    phase.apply(graph)
+
+    graph
   }
 
   def buildLoop(graph: StructuredGraph) = {
@@ -154,7 +223,6 @@ object GraphBuilder {
            entryState.merge(loopBegin, target.state);
            result1
          })
-         Debug.dump(graph, "Block 3")
          // else block (after loop)
          lastInstr = els
          frameState = frameStateElse
@@ -342,7 +410,7 @@ object GraphBuilder {
       val sampleGraph = new StructuredGraph(method)
       val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
       graphBuilderPhase.debugApply(sampleGraph)
-      // new DeadCodeEliminationPhase().apply(sampleGraph);
+      new DeadCodeEliminationPhase().apply(sampleGraph);
       Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
       val graph = build(new StructuredGraph(method))
       Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)

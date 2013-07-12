@@ -1,5 +1,9 @@
 package playground
 
+object test {
+  def method() = 1
+}
+
 class Examples {
   def simpleIf(arg: Int) = {
   	if(arg > 1) 1 else 2
@@ -13,5 +17,18 @@ class Examples {
       i += 1
     }
     sum
+  }
+
+  def methodCalls(arg: Int) = {
+    println("")
+    100000
+  }
+
+  def arithmetics(arg: Int) = {
+    val x = 1
+    val y: Short = 1
+    x + 1.0
+    x + 1L
+    x + y
   }
 }
