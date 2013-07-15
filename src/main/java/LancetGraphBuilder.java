@@ -689,7 +689,7 @@ public abstract class LancetGraphBuilder extends Phase {
         return result;
     }
 
-    private JavaMethod lookupMethod(int cpi, int opcode) {
+    protected JavaMethod lookupMethod(int cpi, int opcode) {
         eagerResolvingForSnippets(cpi, opcode);
         JavaMethod result = constantPool.lookupMethod(cpi, opcode);
         assert !graphBuilderConfig.eagerResolvingForSnippets() || ((result instanceof ResolvedJavaMethod) && ((ResolvedJavaMethod) result).getDeclaringClass().isInitialized()) : result;
@@ -1020,6 +1020,7 @@ public abstract class LancetGraphBuilder extends Phase {
 
     protected void genInvokeVirtual(JavaMethod target) {
         if (target instanceof ResolvedJavaMethod) {
+            System.out.println("Frame state: ====> " + frameState);
             ValueNode[] args = frameState.popArguments(target.getSignature().getParameterSlots(true), target.getSignature().getParameterCount(true));
             genInvokeIndirect(InvokeKind.Virtual, (ResolvedJavaMethod) target, args);
         } else {

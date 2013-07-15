@@ -1,4 +1,4 @@
-;package playground
+package playground
 
 import java.util.concurrent.Callable
 
@@ -39,7 +39,7 @@ object GraphBuilder {
       1
     }(buildMethod)
 
-    f(arg) // hotspot_assertion fails
+     f(arg) // hotspot_assertion fails
   }
 
   def loop(arg: Int): Int = {
@@ -73,14 +73,6 @@ object GraphBuilder {
  def buildMethod(graph: StructuredGraph) = {
   val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
       def generateGraalIR() = {
-        // Initialization
-        var method = graph.method();
-        println(method)
-        var entryBCI = graph.getEntryBCI();
-        var profilingInfo = method.getProfilingInfo();
-        var frameState = new FrameStateBuilder(method, graph, config.eagerResolving());
-
-
         // Construction
         lastInstr = graph.start()
         // finish the start block
@@ -97,7 +89,7 @@ object GraphBuilder {
         val reflectMeth = cls.getDeclaredMethod("println", classOf[Any])
         val resolvedMethod = runtime.lookupJavaMethod(reflectMeth)
         val args = frameState.popArguments(resolvedMethod.getSignature().getParameterSlots(true), resolvedMethod.getSignature().getParameterCount(true));
-        genInvokeIndirect(InvokeKind.Virtual, resolvedMethod, args);
+        genInvokeIndirect(InvokeKind.Virtual, resolvedMethod, args)
         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(8))
 
 
@@ -419,7 +411,7 @@ object GraphBuilder {
 
       Debug.dump(sampleGraph, "Parsed")
       Debug.dump(graph, "Constructed")
-      val res = GraalCompiler.compileMethod(runtime, backend, target ,method, graph, cache, plan, OptimisticOptimizations.ALL)
+      val res = GraalCompiler.compileMethod(runtime, backend, target, method, graph, cache, plan, OptimisticOptimizations.ALL)
       println("Scope " + com.oracle.graal.debug.internal.DebugScope.getInstance.getQualifiedName)
       Util.printGraph("FINAL")(graph)
       println("===== DONE")
