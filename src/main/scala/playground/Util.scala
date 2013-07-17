@@ -57,25 +57,21 @@ object Util {
   }
 
   def printInvoke(invoke: InvokeNode): Unit = {
-    val methodCallTarget = invoke.methodCallTarget()
-    val targetMethod = methodCallTarget.targetMethod() // ResolvedJavaMethod
+    if (invoke.callTarget.isInstanceOf[MethodCallTargetNode]) {
+      val methodCallTarget = invoke.methodCallTarget()
+      val targetMethod = methodCallTarget.targetMethod() // ResolvedJavaMethod
 
-    println("  invoke: " + invoke)
-    println("    trgt: " + targetMethod)
-    println("    args: " + methodCallTarget.arguments())
+      println("  invoke: " + invoke)
+      println("    trgt: " + targetMethod)
+      println("    args: " + methodCallTarget.arguments())
 
-    /*val rcv = methodCallTarget.receiver()
-    rcv match {
-      case loadField: LoadFieldNode =>
-        println("    rcv : " + loadField)
-        println("          " + loadField.`object`)
-      case _ =>
-    }*/
+      val assumptions = new Assumptions(true)
 
-    val assumptions = new Assumptions(true)
-
-    val info = InliningUtil.getInlineInfo(methodCallTarget.invoke(), assumptions, OptimisticOptimizations.ALL)
-    println("    info: " + info)
+      val info = InliningUtil.getInlineInfo(methodCallTarget.invoke(), assumptions, OptimisticOptimizations.ALL)
+      println("    info: " + info)
+    } else {
+      println("Invoke Node: " + invoke)
+    }
   }
 
 }

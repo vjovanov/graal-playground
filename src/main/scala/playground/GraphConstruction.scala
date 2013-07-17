@@ -24,11 +24,11 @@ import com.oracle.graal.nodes.java.MethodCallTargetNode.InvokeKind;
 
 object GraphBuilder {
 
-  val runtime = HotSpotGraalRuntime.getInstance().getRuntime();
   val compiler = HotSpotGraalRuntime.getInstance().getCompiler();
   val backend = HotSpotGraalRuntime.getInstance().getBackend();
   val target = HotSpotGraalRuntime.getInstance().getTarget();
   val cache = HotSpotGraalRuntime.getInstance().getCache();
+  val runtime = HotSpotGraalRuntime.getInstance().getRuntime();
 
 
   val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
@@ -39,7 +39,7 @@ object GraphBuilder {
       1
     }(buildMethod)
 
-     f(arg) // hotspot_assertion fails
+    f(arg) // hotspot_assertion fails
   }
 
   def loop(arg: Int): Int = {
@@ -75,12 +75,14 @@ object GraphBuilder {
       def generateGraalIR() = {
         // Construction
         lastInstr = graph.start()
+        var removeLocals = new java.util.BitSet()
+        frameState.clearNonLiveLocals(removeLocals)
         // finish the start block
         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
 
         frameState.cleanupDeletedPhis();
-        val removeLocals = new java.util.BitSet()
-        frameState.clearNonLiveLocals(removeLocals)
+        frameState.setRethrowException(false);
+
         frameState.push(Kind.Object, LancetGraphBuilder.append(ConstantNode.forObject(Predef, runtime, currentGraph)));
         frameState.push(Kind.Object, LancetGraphBuilder.append(ConstantNode.forObject("blomp", runtime, currentGraph)));
 
@@ -89,25 +91,35 @@ object GraphBuilder {
         val reflectMeth = cls.getDeclaredMethod("println", classOf[Any])
         val resolvedMethod = runtime.lookupJavaMethod(reflectMeth)
         val args = frameState.popArguments(resolvedMethod.getSignature().getParameterSlots(true), resolvedMethod.getSignature().getParameterCount(true));
+        // TODO is explicit bci reference needed here?
+        stream.setBCI(5)
         genInvokeIndirect(InvokeKind.Virtual, resolvedMethod, args)
+
+        frameState.clearNonLiveLocals(removeLocals)
         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(8))
 
 
         // block stuff
-        val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
+        val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode())
         val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
         val result = target.fixed;
         val tmpState = frameState.copy()
+        tmpState.clearNonLiveLocals(removeLocals)
         appendGoto(result)
         frameState = tmpState
-        frameState.clearNonLiveLocals(removeLocals)
+        frameState.cleanupDeletedPhis();
+        frameState.setRethrowException(false);
+
         lastInstr = nextFirstInstruction
 
         frameState.ipush(appendConstant(Constant.INT_1));
 
+        // this does not work as it is supposed to
+
         // return
         frameState.cleanupDeletedPhis();
         frameState.setRethrowException(false);
+
 
         val node = frameState.pop(Kind.Int)
         frameState.clearStack();
@@ -393,14 +405,15 @@ object GraphBuilder {
     val reflectMeth = cls.getDeclaredMethod("apply$mcII$sp", classOf[Int])
     val method = runtime.lookupJavaMethod(reflectMeth)
 
-    val plan = new PhasePlan();
-    plan.addPhase(PhasePosition.HIGH_LEVEL, Util.printGraph("HIGH_LEVEL"))
-    plan.addPhase(PhasePosition.MID_LEVEL, Util.printGraph("MID_LEVEL"))
     val result = Util.topScope(method) {
 
       // Building how the graph should look like
       val sampleGraph = new StructuredGraph(method)
       val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
+      val plan = new PhasePlan();
+      plan.addPhase(PhasePosition.HIGH_LEVEL, Util.printGraph("HIGH_LEVEL"))
+      plan.addPhase(PhasePosition.MID_LEVEL, Util.printGraph("MID_LEVEL"))
+      plan.addPhase(PhasePosition.AFTER_PARSING, graphBuilderPhase) // this line is absolutely required for inlining
       graphBuilderPhase.debugApply(sampleGraph)
       new DeadCodeEliminationPhase().apply(sampleGraph);
       Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
