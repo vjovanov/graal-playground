@@ -266,6 +266,86 @@ public abstract class LancetGraphBuilder extends Phase {
         return handler.catchTypeCPI() == 0;
     }
 
+    protected scala.Tuple2<FixedWithNextNode, FixedWithNextNode> ifNode(
+        ValueNode x,
+        Condition cond,
+        ValueNode y,
+        Boolean elseExists,
+        scala.Tuple2<LoopBeginNode, FrameStateBuilder> loop
+        ) {
+        assert !x.isDeleted() && !y.isDeleted();
+        if (!elseExists) { // in args (createTarget)
+            // appendGoto(createTarget(trueBlock, frameState));
+            throw new RuntimeException("Not done yet");
+            // return;
+        }
+
+        double probability = 0.5;
+
+        // the mirroring and negation operations get the condition into canonical form
+        boolean mirror = cond.canonicalMirror();
+        boolean negate = cond.canonicalNegate();
+
+        ValueNode a = mirror ? y : x;
+        ValueNode b = mirror ? x : y;
+
+        CompareNode condition;
+        assert a.kind() != Kind.Double && a.kind() != Kind.Float;
+        if (cond == Condition.EQ || cond == Condition.NE) {
+            if (a.kind() == Kind.Object) {
+                condition = new ObjectEqualsNode(a, b);
+            } else {
+                condition = new IntegerEqualsNode(a, b);
+            }
+        } else {
+            assert a.kind() != Kind.Object && !cond.isUnsigned();
+            condition = new IntegerLessThanNode(a, b);
+        }
+        condition = currentGraph.unique(condition);
+
+        FixedWithNextNode thn = null;
+        FixedNode target = null;
+        if (loop != null) {
+          FixedWithNextNode exitBlockInstr = currentGraph.add(new BlockPlaceholderNode());
+          FrameStateBuilder newState = frameState.copy();
+          LoopBeginNode loopBegin = (LoopBeginNode) loop._1;
+          LoopExitNode loopExit = currentGraph.add(new LoopExitNode(loopBegin));
+          newState.insertLoopProxies(loopExit, loop._2);
+          loopExit.setStateAfter(newState.create(0));
+          loopExit.setNext(exitBlockInstr);
+          thn = exitBlockInstr;
+          target = new Target(loopExit, newState).fixed;
+        } else {
+          thn = currentGraph.add(new BlockPlaceholderNode());
+          target = new Target(thn, frameState).fixed;
+        }
+
+        // Inline the loop target
+        BeginNode trueSuccessor = BeginNode.begin(target);
+
+        FixedWithNextNode els = null;
+        FixedNode target1 = null;
+        if (false) {
+          FixedWithNextNode exitBlockInstr = currentGraph.add(new BlockPlaceholderNode());
+          FrameStateBuilder newState = frameState.copy();
+          LoopBeginNode loopBegin = (LoopBeginNode) loop._1;
+          LoopExitNode loopExit = currentGraph.add(new LoopExitNode(loopBegin));
+          newState.insertLoopProxies(loopExit, loop._2);
+          loopExit.setStateAfter(newState.create(0));
+          loopExit.setNext(exitBlockInstr);
+          els = exitBlockInstr;
+          target1 = new Target(loopExit, newState).fixed;
+        } else {
+          els = currentGraph.add(new BlockPlaceholderNode());
+          target1 = new Target(els, frameState).fixed;
+        }
+        BeginNode falseSuccessor = BeginNode.begin(target1);
+
+        IfNode ifNode = negate ? new IfNode(condition, falseSuccessor, trueSuccessor, 0.5) : new IfNode(condition, trueSuccessor, falseSuccessor, 0.5);
+        append(currentGraph.add(ifNode));
+        return new scala.Tuple2<FixedWithNextNode, FixedWithNextNode>(thn, els);
+    }
+
     private DispatchBeginNode handleException(ValueNode exceptionObject, int bci) {
         assert bci == FrameState.BEFORE_BCI || bci == bci() : "invalid bci";
         Debug.log("Creating exception dispatch edges at %d, exception object=%s, exception seen=%s", bci, exceptionObject, profilingInfo.getExceptionSeen(bci));

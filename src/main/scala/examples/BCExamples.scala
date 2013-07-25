@@ -6,22 +6,30 @@ object test {
 
 class Examples {
   def simpleIf(arg: Int) = {
-  	if(arg > 1) 1 else 2
+    val cond = arg > 1
+  	val res = if(cond) 1 else 2
+    res
   }
 
   def loop(arg: Int) = {
-  	var sum = 0
     var i = 0
-    while (i < arg) {
-      sum += i
-      i += 1
+    while ({val c = i < arg; c}) {
+      i = i + 1
     }
-    sum
+    arg
   }
 
   def methodCalls(arg: Int) = {
     println("")
     100000
+  }
+
+  def arrays(arg: Int) = {
+      val a = new Array[Int](arg)
+      a(1) = 2
+      val x = a(0)
+      val y = a.length
+      x + y
   }
 
   def arithmetics(arg: Int) = {
@@ -30,5 +38,14 @@ class Examples {
     x + 1.0
     x + 1L
     x + y
+  }
+
+  def nestedIfs(x: Int) = {
+    if (x < 01) if(x < -11) -12 else 13 else if (x > 21) 22 else x - 32
+  }
+
+  def dummyWhile(x: Int) = {
+    val x = while(true){()}
+    x
   }
 }
