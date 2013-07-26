@@ -266,7 +266,9 @@ public abstract class LancetGraphBuilder extends Phase {
         return handler.catchTypeCPI() == 0;
     }
 
-    protected scala.Tuple2<FixedWithNextNode, FixedWithNextNode> ifNode(
+    protected scala.Tuple2<
+      scala.Tuple2<FixedWithNextNode,FrameStateBuilder>,
+      scala.Tuple2<FixedWithNextNode,FrameStateBuilder>> ifNode(
         ValueNode x,
         Condition cond,
         ValueNode y,
@@ -305,45 +307,40 @@ public abstract class LancetGraphBuilder extends Phase {
 
         FixedWithNextNode thn = null;
         FixedNode target = null;
+        FrameStateBuilder thnState = null;
         if (loop != null) {
           FixedWithNextNode exitBlockInstr = currentGraph.add(new BlockPlaceholderNode());
           FrameStateBuilder newState = frameState.copy();
           LoopBeginNode loopBegin = (LoopBeginNode) loop._1;
           LoopExitNode loopExit = currentGraph.add(new LoopExitNode(loopBegin));
           newState.insertLoopProxies(loopExit, loop._2);
-          loopExit.setStateAfter(newState.create(0));
+          loopExit.setStateAfter(newState.create(20));
           loopExit.setNext(exitBlockInstr);
           thn = exitBlockInstr;
+          thnState = newState;
           target = new Target(loopExit, newState).fixed;
         } else {
           thn = currentGraph.add(new BlockPlaceholderNode());
           target = new Target(thn, frameState).fixed;
+          thnState = frameState.copy();
         }
 
         // Inline the loop target
         BeginNode trueSuccessor = BeginNode.begin(target);
 
-        FixedWithNextNode els = null;
-        FixedNode target1 = null;
-        if (false) {
-          FixedWithNextNode exitBlockInstr = currentGraph.add(new BlockPlaceholderNode());
-          FrameStateBuilder newState = frameState.copy();
-          LoopBeginNode loopBegin = (LoopBeginNode) loop._1;
-          LoopExitNode loopExit = currentGraph.add(new LoopExitNode(loopBegin));
-          newState.insertLoopProxies(loopExit, loop._2);
-          loopExit.setStateAfter(newState.create(0));
-          loopExit.setNext(exitBlockInstr);
-          els = exitBlockInstr;
-          target1 = new Target(loopExit, newState).fixed;
-        } else {
-          els = currentGraph.add(new BlockPlaceholderNode());
-          target1 = new Target(els, frameState).fixed;
-        }
+        FixedWithNextNode els = currentGraph.add(new BlockPlaceholderNode());
+        FixedNode target1 = new Target(els, frameState).fixed;
+        FrameStateBuilder elsState = frameState.copy();
+
         BeginNode falseSuccessor = BeginNode.begin(target1);
 
         IfNode ifNode = negate ? new IfNode(condition, falseSuccessor, trueSuccessor, 0.5) : new IfNode(condition, trueSuccessor, falseSuccessor, 0.5);
         append(currentGraph.add(ifNode));
-        return new scala.Tuple2<FixedWithNextNode, FixedWithNextNode>(thn, els);
+        return new scala.Tuple2<scala.Tuple2<FixedWithNextNode,FrameStateBuilder>,
+                                scala.Tuple2<FixedWithNextNode,FrameStateBuilder>>(
+                 new scala.Tuple2<FixedWithNextNode,FrameStateBuilder>(thn, thnState),
+                 new scala.Tuple2<FixedWithNextNode,FrameStateBuilder>(els, elsState)
+        );
     }
 
     private DispatchBeginNode handleException(ValueNode exceptionObject, int bci) {

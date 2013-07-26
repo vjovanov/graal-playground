@@ -33,7 +33,7 @@ object Util {
        GraalOptions.Meter,
        GraalOptions.Time,
        "Playground",
-       "playground.GraphBuilder$$anonfun$3.apply$mcII$sp",
+       "playground.GraphBuilder$$anonfun$4.apply$mcII$sp",
        System.out,
        List(new GraphPrinterDumpHandler()))
 

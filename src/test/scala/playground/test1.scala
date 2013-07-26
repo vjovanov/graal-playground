@@ -26,8 +26,15 @@ class TestInline1 extends FileDiffSuite {
   //   GraphBuilder.nestedLoop(2)
   // }
 
-  def testLoop = withOutFileChecked(prefix+"loop") {
-    assert(GraphBuilder.loop(1) == 0)
+  /*def testLoop = withOutFileChecked(prefix+"loop") {
+    println(GraphBuilder.loop(5))
+  //   assert(GraphBuilder.loop(2) == 1)
+  //   assert(GraphBuilder.loop(3) == 3)
+  //   assert(GraphBuilder.loop(4) == 6)
+  }*/
+
+  def testLoopCond = withOutFileChecked(prefix+"loopcond") {
+    println(GraphBuilder.loopCond(5))
   //   assert(GraphBuilder.loop(2) == 1)
   //   assert(GraphBuilder.loop(3) == 3)
   //   assert(GraphBuilder.loop(4) == 6)
