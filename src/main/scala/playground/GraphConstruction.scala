@@ -256,7 +256,7 @@ object GraphBuilder {
          frameState = loopBlockState
          lastInstr = loopBegin
          clearLocals(frameState)(1, 2, 3)
-         frameState.cleanupDeletedPhis();
+         frameState.cleanupDeletedPhis()
 
          // [begin] load the condition variables
          loadLocal(3, Kind.Int)
@@ -348,14 +348,14 @@ object GraphBuilder {
          storeLocal(Kind.Int, 3)
          // [end]
 
-         clearLocals(frameState)(1, 2, 3)
+         //- clearLocals(frameState)(1, 2, 3)
 
          {// initialize the next block
            val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
            val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
            val result = target.fixed;
            val tmpState = frameState.copy()
-           clearLocals(tmpState)(1, 2, 3)
+           //-clearLocals(tmpState)(1, 2, 3)
            appendGoto(result)
 
            frameState = tmpState
@@ -383,16 +383,15 @@ object GraphBuilder {
 
          frameState = loopBlockState
          lastInstr = loopBegin
-         clearLocals(frameState)(1, 2, 3)
+         //-clearLocals(frameState)(1, 2, 3)
          frameState.cleanupDeletedPhis();
 
          // [begin] load the condition variables
         {
-         loadLocal(3, Kind.Int)
          loadLocal(1, Kind.Int)
+         loadLocal(3, Kind.Int)
          val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.LT,frameState.pop(Kind.Int), true, null);
          // then
-         // here we should have a new lastInstr, and the new frameState
          lastInstr = thn
          frameState = frameStateThen
          // clearLocals(frameState)()
@@ -434,12 +433,11 @@ object GraphBuilder {
             result
          })
          frameState = exitState
-         // clearLocals(exitState, 2)
          lastInstr = mergeNode
          mergeNode.setStateAfter(frameState.create(10))// darn what do we put here?
         }
 
-        loadLocal(4, Kind.Int)
+         loadLocal(4, Kind.Int)
          // [end]
 
          val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.EQ, appendConstant(Constant.INT_0), true, (loopBegin, loopBlockState));
@@ -447,7 +445,7 @@ object GraphBuilder {
          // starting the body (else block)
          frameState = frameStateElse // should the loop block state go here?
          lastInstr = els
-         clearLocals(frameState)(1, 2, 3)
+         //-clearLocals(frameState)(1, 2, 3)
          frameState.cleanupDeletedPhis();
 
          // [begin] body
@@ -484,14 +482,14 @@ object GraphBuilder {
           val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
           val result = target.fixed;
           val tmpState = frameState.copy()
-          clearLocals(tmpState)(1, 2, 3)
+          //-clearLocals(tmpState)(1, 2, 3)
           appendGoto(result)
 
           frameState = tmpState
           lastInstr = nextFirstInstruction
          }
 
-         clearLocals(frameState)(2)
+         //-clearLocals(frameState)(2)
          frameState.cleanupDeletedPhis();
          frameState.setRethrowException(false);
 

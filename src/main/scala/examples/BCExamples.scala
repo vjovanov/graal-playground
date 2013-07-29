@@ -38,6 +38,12 @@ class Examples {
     x + 1.0
     x + 1L
     x + y
+    x % 1
+    val az = x == 1
+    val c = 1 == true
+    val z = 1 == 1L
+    val res = "abc" == 1
+    res
   }
 
   def nestedIfs(x: Int) = {
