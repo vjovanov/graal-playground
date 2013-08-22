@@ -23,19 +23,22 @@ import com.oracle.graal.printer._
 
 object Util {
 
-  val runtime = HotSpotGraalRuntime.getInstance().getRuntime();
-  val compiler = HotSpotGraalRuntime.getInstance().getCompiler();
+  val runtime = HotSpotGraalRuntime.graalRuntime().getRuntime()
+  val compiler = HotSpotGraalRuntime.graalRuntime().getCompilerToVM()
 
   def topScope[A](method: ResolvedJavaMethod)(body: => A) = {
-    //val hotspotDebugConfig = new HotSpotDebugConfig(GraalOptions.Log + ",Escape", GraalOptions.Meter, GraalOptions.Time, GraalOptions.Dump, GraalOptions.MethodFilter, System.out)
+        import GraalDebugConfig._
     val hotspotDebugConfig =
-      new GraalDebugConfig(GraalOptions.Log,
-       GraalOptions.Meter,
-       GraalOptions.Time,
-       "Playground",
-       "playground.GraphBuilder$$anonfun$4.apply$mcII$sp",
+      new GraalDebugConfig(
+       Log.getValue(),
+       Meter.getValue(),
+       Time.getValue(),
+       "Playground",   // Dump.getValue(),
+       "playground.GraphBuilder$$anonfun$2.apply$mcII$sp",// MethodFilter.getValue()
        System.out,
-       List(new GraphPrinterDumpHandler()))
+       List(new GraphPrinterDumpHandler())
+      )
+    Debug.setConfig(hotspotDebugConfig)
 
     Debug.setConfig(hotspotDebugConfig)
     Debug.scope("Playground", method, new Callable[A] {
@@ -58,17 +61,16 @@ object Util {
 
   def printInvoke(invoke: InvokeNode): Unit = {
     if (invoke.callTarget.isInstanceOf[MethodCallTargetNode]) {
-      val methodCallTarget = invoke.methodCallTarget()
-      val targetMethod = methodCallTarget.targetMethod() // ResolvedJavaMethod
+      val methodCallTarget = invoke.callTarget()
 
       println("  invoke: " + invoke)
-      println("    trgt: " + targetMethod)
       println("    args: " + methodCallTarget.arguments())
 
       val assumptions = new Assumptions(true)
 
-      val info = InliningUtil.getInlineInfo(methodCallTarget.invoke(), assumptions, OptimisticOptimizations.ALL)
-      println("    info: " + info)
+      // TODO: this could be useful
+      // val info = InliningUtil.getInlineInfo(methodCallTarget.invoke(), assumptions, OptimisticOptimizations.ALL)
+      // println("    info: " + info)
     } else {
       println("Invoke Node: " + invoke)
     }

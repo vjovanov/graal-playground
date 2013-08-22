@@ -5,6 +5,8 @@ object test {
 }
 
 class Examples {
+  def boolean(arg: Int) = true
+
   def simpleIf(arg: Int) = {
     val cond = arg > 1
   	val res = if(cond) 1 else 2
@@ -20,7 +22,9 @@ class Examples {
   }
 
   def methodCalls(arg: Int) = {
-    println("")
+    val x = "blimp" concat "blomp"
+    val y = println("klomp")
+    println(y)
     100000
   }
 
@@ -46,6 +50,28 @@ class Examples {
     res
   }
 
+  def conditionals(arg: Int) = {
+    val d = Double.NaN
+    val f = arg.toFloat
+    val l = arg.toLong
+    val resi0 = arg < 1
+    val resi1 = arg > 0
+    val resl0 = l > 1
+    val resl1 = l < 0
+    val resl2 = l <= 1
+    val resd0 = d < 1.0D
+    val resd1 = d <= 0.0D
+    val resd2 = d > 1.0D
+    val resd3 = d >= 0.0D
+    val resd4 = d == 1.0D
+    val resd5 = d != 0.0D
+    val resf0 = f < 1.0f
+    val resf1 = f > 1.0f
+    val resf2 = f >= 1.0f
+
+    (resd0, resf0, resi0, resl0)._3
+  }
+
   def nestedIfs(x: Int) = {
     if (x < 01) if(x < -11) -12 else 13 else if (x > 21) 22 else x - 32
   }
@@ -53,5 +79,24 @@ class Examples {
   def dummyWhile(x: Int) = {
     val x = while(true){()}
     x
+  }
+
+  def invocations(x: Int) = {
+    val r = java.lang.Integer.toString(x)
+    r
+
+    val res = "a" concat "b"
+    Predef.println(res)
+    res
+
+  }
+
+  def booleanOps(x: Int) = {
+    val x = true
+    val y = false
+    val r1 = x && y
+    val r2 = x || y
+    val r3 = !x
+    r3
   }
 }

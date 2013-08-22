@@ -1,12 +1,12 @@
 #!/bin/bash -x
 if [ -n "$DEBUG" ]; 
 then
-  export JAVA_HOME=$GRAAL_HOME/jdk1.7.0_10/fastdebug/
+  export JAVA_HOME=$EGRAAL_HOME/jdk1.7.0_10/fastdebug/
 else
-  export JAVA_HOME=$GRAAL_HOME/jdk1.7.0_10/product/
+  export JAVA_HOME=$EGRAAL_HOME/jdk1.7.0_10/product/
 fi
 
-export JAVA_OPTS="-graal -Ddelite.home.dir=~/work/research/code/virt/Delite"
+export JAVA_OPTS="-graal"
 
 DUMP=""
 DEBUGGER=""

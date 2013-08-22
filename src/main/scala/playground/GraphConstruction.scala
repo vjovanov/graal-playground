@@ -1,7 +1,15 @@
 package playground
 
 import java.util.concurrent.Callable
+import java.util.BitSet
 
+import com.oracle.graal.java._
+import com.oracle.graal.phases._   // PhasePlan
+import com.oracle.graal.phases.common._
+import com.oracle.graal.phases.tiers._
+import com.oracle.graal.phases.PhasePlan.PhasePosition
+import com.oracle.graal.hotspot._
+import com.oracle.graal.nodes._
 import com.oracle.graal.{java=>J,_}
 import com.oracle.graal.debug._         // Debug
 import com.oracle.graal.api.meta._      // ResolvedJavaMethod
@@ -9,28 +17,32 @@ import com.oracle.graal.api.code._      // Assumptions
 import com.oracle.graal.hotspot._
 import com.oracle.graal.hotspot.meta._  // HotSpotRuntime
 import com.oracle.graal.compiler._      // GraalCompiler
-import com.oracle.graal.java._          // GraphBuilderConfiguration
+import com.oracle.graal.compiler.phases._      // GraalCompiler
 import com.oracle.graal.graph._
 import com.oracle.graal.nodes.{java=>J,_}   // StructuredGraph
 import com.oracle.graal.nodes.java._        // MethodCallTargetNode
-import com.oracle.graal.phases._   // PhasePlan
-import com.oracle.graal.phases.common._
-import com.oracle.graal.phases.PhasePlan.PhasePosition
-import com.oracle.graal.nodes.calc._
-import com.oracle.graal.debug.internal._;
+import com.oracle.graal.debug._;
 import collection.JavaConversions._
+import com.oracle.graal.debug.internal._
+import com.oracle.graal.printer._
+import com.oracle.graal.api.meta._
+import com.oracle.graal.nodes.calc._
+import com.oracle.graal.api.runtime._
+import com.oracle.graal.nodes.spi._
 import com.oracle.graal.nodes.java.MethodCallTargetNode.InvokeKind;
+import playground.LancetGraphBuilder.BlockPlaceholderNode
+import playground.LancetGraphBuilder.Target
 
 object GraphBuilder {
 
-  val compiler = HotSpotGraalRuntime.getInstance().getCompiler();
-  val backend = HotSpotGraalRuntime.getInstance().getBackend();
-  val target = HotSpotGraalRuntime.getInstance().getTarget();
-  val cache = HotSpotGraalRuntime.getInstance().getCache();
-  val runtime = HotSpotGraalRuntime.getInstance().getRuntime();
+  val compiler = HotSpotGraalRuntime.graalRuntime().getCompilerToVM()
+  val backend = HotSpotGraalRuntime.graalRuntime().getBackend()
+  val target = HotSpotGraalRuntime.graalRuntime().getTarget()
+  val cache = HotSpotGraalRuntime.graalRuntime().getCache()
+  val runtime = HotSpotGraalRuntime.graalRuntime().getRuntime()
 
 
-  val config = new GraphBuilderConfiguration(GraphBuilderConfiguration.ResolvePolicy.Eager, null) // resolve eagerly, lots of DeoptNodes otherwise
+  val config = GraphBuilderConfiguration.getEagerDefault()
 
   def arrays(arg: Int) = {
     val f = compile{ arg: Int =>
@@ -47,7 +59,7 @@ object GraphBuilder {
   def methodCalls(arg: Int) = {
     val f = compile{ arg: Int =>
       println("blomp")
-      1
+      arg
     }(buildMethod)
 
     f(arg)
@@ -114,7 +126,7 @@ object GraphBuilder {
   }
 
   def buildArrays(graph: StructuredGraph) = {
-    val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+    val phase = new GraphConstructionUtil(runtime, config, OptimisticOptimizations.ALL) {
       def generateGraalIR() = {
         // Construction
         lastInstr = graph.start()
@@ -143,45 +155,45 @@ object GraphBuilder {
   }
 
  def buildMethod(graph: StructuredGraph) = {
-  val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+  val phase = new GraphConstructionUtil(runtime, config, OptimisticOptimizations.ALL) {
       def generateGraalIR() = {
         // Construction
         lastInstr = graph.start()
-        clearLocals(frameState)()
+        // clearLocals(frameState)()
         // finish the start block
         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0));
 
         frameState.cleanupDeletedPhis();
         frameState.setRethrowException(false);
 
-        frameState.push(Kind.Object, LancetGraphBuilder.append(ConstantNode.forObject(Predef, runtime, currentGraph)));
-        frameState.push(Kind.Object, LancetGraphBuilder.append(ConstantNode.forObject("blomp", runtime, currentGraph)));
+        frameState.push(Kind.Object, append(ConstantNode.forObject(Predef, runtime, currentGraph)));
+        frameState.push(Kind.Object, append(ConstantNode.forObject("blomp", runtime, currentGraph)));
 
         // how to get the target without the consts
         val cls = Predef.getClass
         val reflectMeth = cls.getDeclaredMethod("println", classOf[Any])
         val resolvedMethod = runtime.lookupJavaMethod(reflectMeth)
-        val args = frameState.popArguments(resolvedMethod.getSignature().getParameterSlots(true), resolvedMethod.getSignature().getParameterCount(true));
+        val args = frameState.popArguments(resolvedMethod.getSignature().getParameterSlots(true), resolvedMethod.getSignature().getParameterCount(true))
         genInvokeIndirect(InvokeKind.Virtual, resolvedMethod, args)
 
-        clearLocals(frameState)()
-        lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(8))
+        // clearLocals(frameState)()
+        lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(1))
 
         // block stuff
-        val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode())
-        val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
+        val nextFirstInstruction = currentGraph.add(new BlockPlaceholderNode())
+        val target = new Target(nextFirstInstruction, frameState);
         val result = target.fixed;
         val tmpState = frameState.copy()
-        clearLocals(tmpState)()
+        // clearLocals(tmpState)()
         appendGoto(result)
 
         frameState = tmpState
-        frameState.cleanupDeletedPhis();
-        frameState.setRethrowException(false);
+        frameState.cleanupDeletedPhis()
+        frameState.setRethrowException(false)
 
         lastInstr = nextFirstInstruction
 
-        frameState.ipush(appendConstant(Constant.INT_1));
+        loadLocal(1, Kind.Int)
 
         // return
         frameState.cleanupDeletedPhis();
@@ -201,7 +213,7 @@ object GraphBuilder {
   }
 
   def buildLoop(graph: StructuredGraph) = {
-    val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+    val phase = new GraphConstructionUtil(runtime, config, OptimisticOptimizations.ALL) {
        def generateGraalIR() = {
          lastInstr = graph.start()
          // finish the start block
@@ -223,8 +235,8 @@ object GraphBuilder {
          clearLocals(frameState)(1, 2, 3)
 
          {// initialize the next block
-           val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
-           val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
+           val nextFirstInstruction = currentGraph.add(new BlockPlaceholderNode());
+           val target = new Target(nextFirstInstruction, frameState);
            val result = target.fixed;
            val tmpState = frameState.copy()
            clearLocals(tmpState)(1, 2, 3)
@@ -263,7 +275,7 @@ object GraphBuilder {
          loadLocal(1, Kind.Int)
          // [end]
 
-         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.LT, frameState.pop(Kind.Int), true, (loopBegin, loopBlockState));
+         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.LT, frameState.pop(Kind.Int), (loopBegin, loopBlockState));
 
          // starting the body (else block)
          frameState = frameStateElse // should the loop block state go here?
@@ -286,7 +298,7 @@ object GraphBuilder {
          // [end] body
 
          appendGoto({
-           val target = new LancetGraphBuilder.Target(currentGraph.add(new LoopEndNode(loopBegin)), frameState)
+           val target = new Target(currentGraph.add(new LoopEndNode(loopBegin)), frameState)
            val result = target.fixed
            loopBlockState.merge(loopBegin, target.state)
            result
@@ -301,8 +313,8 @@ object GraphBuilder {
 
          // return
          {
-          val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
-          val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
+          val nextFirstInstruction = currentGraph.add(new BlockPlaceholderNode());
+          val target = new Target(nextFirstInstruction, frameState);
           val result = target.fixed;
           val tmpState = frameState.copy()
           clearLocals(tmpState)(1, 2, 3)
@@ -329,11 +341,11 @@ object GraphBuilder {
   }
 
   def buildLoopCond(graph: StructuredGraph) = {
-        val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+        val phase = new GraphConstructionUtil(runtime, config, OptimisticOptimizations.ALL) {
        def generateGraalIR() = {
          lastInstr = graph.start()
          // finish the start block
-         clearLocals(frameState)(1)
+         //- clearLocals(frameState)(1)
          lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(0))
          frameState.cleanupDeletedPhis()
          frameState.setRethrowException(false);
@@ -351,8 +363,8 @@ object GraphBuilder {
          //- clearLocals(frameState)(1, 2, 3)
 
          {// initialize the next block
-           val nextFirstInstruction = currentGraph.add(new LancetGraphBuilder.BlockPlaceholderNode());
-           val target = new LancetGraphBuilder.Target(nextFirstInstruction, frameState);
+           val nextFirstInstruction = currentGraph.add(new BlockPlaceholderNode());
+           val target = new Target(nextFirstInstruction, frameState);
            val result = target.fixed;
            val tmpState = frameState.copy()
            //-clearLocals(tmpState)(1, 2, 3)
@@ -390,7 +402,7 @@ object GraphBuilder {
         {
          loadLocal(1, Kind.Int)
          loadLocal(3, Kind.Int)
-         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.LT,frameState.pop(Kind.Int), true, null);
+         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.LT,frameState.pop(Kind.Int), null);
          // then
          lastInstr = thn
          frameState = frameStateThen
@@ -440,7 +452,7 @@ object GraphBuilder {
          loadLocal(4, Kind.Int)
          // [end]
 
-         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.EQ, appendConstant(Constant.INT_0), true, (loopBegin, loopBlockState));
+         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.EQ, appendConstant(Constant.INT_0), (loopBegin, loopBlockState));
 
          // starting the body (else block)
          frameState = frameStateElse // should the loop block state go here?
@@ -506,7 +518,7 @@ object GraphBuilder {
   }
 
   def buildIf(graph: StructuredGraph) = {
-    val phase = new LancetGraphBuilder(runtime, config, OptimisticOptimizations.ALL) {
+    val phase = new GraphConstructionUtil(runtime, config, OptimisticOptimizations.ALL) {
        def generateGraalIR() = {
          clearLocals(frameState)(1)
 
@@ -519,7 +531,7 @@ object GraphBuilder {
          frameState.push(Kind.Int, frameState.loadLocal(1)) // ILOAD_1
          frameState.ipush(ConstantNode.forConstant(Constant.INT_0, runtime, graph))
 
-         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.GT,frameState.pop(Kind.Int), true, null);
+         val ((thn, frameStateThen), (els, frameStateElse)) = ifNode(frameState.pop(Kind.Int), Condition.GT,frameState.pop(Kind.Int), null);
          // then
          // here we should have a new lastInstr, and the new frameState
          lastInstr = thn
@@ -570,7 +582,7 @@ object GraphBuilder {
          storeLocal(Kind.Int, 2) // var sum
          frameState.push(Kind.Int, frameState.loadLocal(2)); // ILOAD_1
 
-         val ((thn1, frameStateThen1), (els1, frameStateElse1)) = ifNode(frameState.pop(Kind.Int), Condition.EQ, appendConstant(Constant.INT_0), true, null)
+         val ((thn1, frameStateThen1), (els1, frameStateElse1)) = ifNode(frameState.pop(Kind.Int), Condition.EQ, appendConstant(Constant.INT_0), null)
          // then
          // here we should have a new lastInstr, and the new frameState
          lastInstr = thn1
@@ -666,7 +678,7 @@ object GraphBuilder {
   }
 
   def clearLocals(fs: FrameStateBuilder)(locals: Int*) = {
-    val removeLocals = new java.util.BitSet()
+    val removeLocals = new BitSet()
     locals.foreach(removeLocals.set(_))
     fs.clearNonLiveLocals(removeLocals);
   }
@@ -717,23 +729,36 @@ object GraphBuilder {
 
       // Building how the graph should look like
       val sampleGraph = new StructuredGraph(method)
-      val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL)
-      val plan = new PhasePlan();
-      plan.addPhase(PhasePosition.HIGH_LEVEL, Util.printGraph("HIGH_LEVEL"))
-      plan.addPhase(PhasePosition.MID_LEVEL, Util.printGraph("MID_LEVEL"))
-      plan.addPhase(PhasePosition.AFTER_PARSING, graphBuilderPhase) // this line is required for method calls
-      graphBuilderPhase.debugApply(sampleGraph)
+      val graphBuilderPhase = new GraphBuilderPhase(runtime, config, OptimisticOptimizations.NONE)
+      val plan = new PhasePlan()
+      plan.addPhase(PhasePosition.AFTER_PARSING, new GraphBuilderPhase(runtime, config, OptimisticOptimizations.ALL))
+      graphBuilderPhase.apply(sampleGraph)
       new DeadCodeEliminationPhase().apply(sampleGraph);
       Util.printGraph("AFTER_PARSING (required)", Node.Verbosity.Debugger)(sampleGraph)
       val graph = build(new StructuredGraph(method))
-      // val graph = new StructuredGraph(method);   graphBuilderPhase.apply(graph);
+       // val graph = new StructuredGraph(method);  // graphBuilderPhase.apply(graph);
       Util.printGraph("AFTER_PARSING ", Node.Verbosity.Debugger)(graph)
       new DeadCodeEliminationPhase().apply(graph)
       Util.printGraph("AFTER_PARSING (dead-code)", Node.Verbosity.Debugger)(graph)
 
       Debug.dump(sampleGraph, "Parsed")
       Debug.dump(graph, "Constructed")
-      val res = GraalCompiler.compileMethod(runtime, backend, target, method, graph, cache, plan, OptimisticOptimizations.ALL)
+      // HighTier.Inline.setValue(false)
+      var res = GraalCompiler.compileGraph(
+        graph,
+        CodeUtil.getCallingConvention(runtime, CallingConvention.Type.JavaCallee, method, false),
+        method,
+        runtime,
+        Graal.getRequiredCapability(classOf[Replacements]),
+        backend,
+        target,
+        cache,
+        plan,
+        OptimisticOptimizations.ALL,
+        new SpeculationLog(),
+        Suites.createDefaultSuites(),
+        new CompilationResult()
+      )
       println("Scope " + com.oracle.graal.debug.internal.DebugScope.getInstance.getQualifiedName)
       Util.printGraph("FINAL")(graph)
       println("===== DONE")

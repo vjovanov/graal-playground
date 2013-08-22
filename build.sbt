@@ -4,6 +4,8 @@ version := "0.1"
 
 scalaVersion := "2.9.2"
 
+compileOrder := CompileOrder.JavaThenScala
+
 // tests are not thread safe
 parallelExecution in Test := false
 
@@ -29,6 +31,8 @@ unmanagedClasspath in Compile <++= baseDirectory map { base =>
     "com.oracle.graal.boot.test",
     "com.oracle.graal.bytecode",
     "com.oracle.graal.compiler",
+    "com.oracle.graal.phases",
+    "com.oracle.graal.phases.common",
     "com.oracle.graal.debug",
     "com.oracle.graal.examples",
     "com.oracle.graal.graph",
@@ -42,8 +46,6 @@ unmanagedClasspath in Compile <++= baseDirectory map { base =>
     "com.oracle.graal.lir.amd64",
     "com.oracle.graal.nodes",
     "com.oracle.graal.printer",
-    "com.oracle.graal.phases",
-    "com.oracle.graal.phases.common",
     "com.oracle.graal.snippets",
     "com.oracle.graal.snippets.test",
     "com.oracle.graal.tests",
@@ -67,7 +69,8 @@ unmanagedClasspath in Compile <++= baseDirectory map { base =>
     "com.oracle.truffle.jxinterface",
     "com.oracle.truffle.py",
     "com.oracle.truffle.serial",
-    "com.oracle.truffle.serial.test"
+    "com.oracle.truffle.serial.test",
+    "com.oracle.graal.options"
   ) map (graal / _ / "bin")
 }
 
