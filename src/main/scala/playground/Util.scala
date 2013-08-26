@@ -34,7 +34,7 @@ object Util {
        Meter.getValue(),
        Time.getValue(),
        "Playground",   // Dump.getValue(),
-       "playground.GraphBuilder$$anonfun$2.apply$mcII$sp",// MethodFilter.getValue()
+       "playground.GraphBuilder$$anonfun$1.apply$mcII$sp",// MethodFilter.getValue()
        System.out,
        List(new GraphPrinterDumpHandler())
       )

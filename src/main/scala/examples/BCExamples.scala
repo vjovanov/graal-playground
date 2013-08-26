@@ -22,9 +22,16 @@ class Examples {
   }
 
   def methodCalls(arg: Int) = {
+    // invoke on an object
     val x = "blimp" concat "blomp"
+
+    // access on the static field
     val y = println("klomp")
     println(y)
+
+    // field access on an object
+    "blah".length
+
     100000
   }
 

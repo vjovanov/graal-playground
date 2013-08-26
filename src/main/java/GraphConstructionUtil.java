@@ -43,4 +43,5 @@ public abstract class GraphConstructionUtil extends LancetGraphBuilder {
         generateGraalIR();
         finalize();
     }
+
 }

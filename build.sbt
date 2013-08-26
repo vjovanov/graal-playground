@@ -2,16 +2,16 @@ name := "graal-playground"
 
 version := "0.1"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.2"
 
 compileOrder := CompileOrder.JavaThenScala
 
 // tests are not thread safe
 parallelExecution in Test := false
 
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.9.2"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.2"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.9.0" % "1.6.1" % "test"
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 
 libraryDependencies += "junit" % "junit" % "4.8.1" % "test"
 

@@ -1078,6 +1078,29 @@ public class LancetGraphBuilder {
         }
     }
 
+    public void lmsInvokeVirtual(JavaMethod target) {
+        if (target instanceof ResolvedJavaMethod) {
+            // Special handling for runtimes that rewrite an invocation of MethodHandle.invoke(...)
+            // or MethodHandle.invokeExact(...) to a static adapter. HotSpot does this - see
+            // https://wikis.oracle.com/display/HotSpotInternals/Method+handles+and+invokedynamic
+            boolean hasReceiver = !isStatic(((ResolvedJavaMethod) target).getModifiers());
+            // We have no appendix in LMS.
+            // Object appendix = constantPool.lookupAppendix(stream.readCPI(), Bytecodes.INVOKEVIRTUAL);
+            // if (appendix != null) {
+            //     frameState.apush(ConstantNode.forObject(appendix, runtime, currentGraph));
+            // }
+            ValueNode[] args = frameState.popArguments(target.getSignature().getParameterSlots(hasReceiver), target.getSignature().getParameterCount(hasReceiver));
+            if (hasReceiver) {
+                genInvokeIndirect(InvokeKind.Virtual, (ResolvedJavaMethod) target, args);
+            } else {
+                appendInvoke(InvokeKind.Static, (ResolvedJavaMethod) target, args);
+            }
+        } else {
+            handleUnresolvedInvoke(target, InvokeKind.Virtual);
+        }
+
+    }
+
     public void genInvokeVirtual(JavaMethod target) {
         if (target instanceof ResolvedJavaMethod) {
             // Special handling for runtimes that rewrite an invocation of MethodHandle.invoke(...)
@@ -1159,7 +1182,7 @@ public class LancetGraphBuilder {
             returnType = returnType.resolve(targetMethod.getDeclaringClass());
         }
         if (invokeKind != InvokeKind.Static && invokeKind != InvokeKind.Special) {
-            JavaTypeProfile profile = profilingInfo.getTypeProfile(bci());
+            JavaTypeProfile profile = profilingInfo.getTypeProfile(5);
             args[0] = TypeProfileProxyNode.create(args[0], profile);
         }
         MethodCallTargetNode callTarget = currentGraph.add(new MethodCallTargetNode(invokeKind, targetMethod, args, returnType));
@@ -1170,8 +1193,8 @@ public class LancetGraphBuilder {
         // be conservative if information was not recorded (could result in endless recompiles
         // otherwise)
         if (graphBuilderConfig.omitAllExceptionEdges() || (optimisticOpts.useExceptionProbability() && profilingInfo.getExceptionSeen(bci()) == TriState.FALSE)) {
-            frameState.pushReturn(resultType, append(new InvokeNode(callTarget, bci())));
-            return new InvokeNode(callTarget, bci());
+            frameState.pushReturn(resultType, append(new InvokeNode(callTarget, 13)));
+            return new InvokeNode(callTarget, 13);
         } else {
             DispatchBeginNode exceptionEdge = handleException(null, bci());
             InvokeWithExceptionNode invoke = append(new InvokeWithExceptionNode(callTarget, exceptionEdge, bci()));
