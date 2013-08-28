@@ -13,6 +13,12 @@ class Examples {
     res
   }
 
+  def casts(arg: Int) = {
+    val cond: AnyRef = null
+    val res = cond.asInstanceOf[String]
+    1
+  }
+
   def loop(arg: Int) = {
     var i = 0
     while ({val c = i < arg; c}) {

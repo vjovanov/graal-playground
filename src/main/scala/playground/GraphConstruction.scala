@@ -92,7 +92,8 @@ object GraphBuilder {
         val cls = Predef.getClass
         val reflectMeth = cls.getDeclaredMethod("println", classOf[Any])
         val resolvedMethod = runtime.lookupJavaMethod(reflectMeth)
-        lmsInvokeVirtual(resolvedMethod)
+        stream.setBCI(13)
+        genInvokeSpecial(resolvedMethod)
 
         clearLocals(frameState)(1)
         lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(8))

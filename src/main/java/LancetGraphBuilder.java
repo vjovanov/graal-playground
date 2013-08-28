@@ -1193,8 +1193,8 @@ public class LancetGraphBuilder {
         // be conservative if information was not recorded (could result in endless recompiles
         // otherwise)
         if (graphBuilderConfig.omitAllExceptionEdges() || (optimisticOpts.useExceptionProbability() && profilingInfo.getExceptionSeen(bci()) == TriState.FALSE)) {
-            frameState.pushReturn(resultType, append(new InvokeNode(callTarget, 13)));
-            return new InvokeNode(callTarget, 13);
+            frameState.pushReturn(resultType, append(new InvokeNode(callTarget, bci())));
+            return new InvokeNode(callTarget, bci());
         } else {
             DispatchBeginNode exceptionEdge = handleException(null, bci());
             InvokeWithExceptionNode invoke = append(new InvokeWithExceptionNode(callTarget, exceptionEdge, bci()));
