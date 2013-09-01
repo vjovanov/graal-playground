@@ -113,6 +113,36 @@ object GraphBuilder {
 
           lastInstr = nextFirstInstruction
         }
+
+        {
+          loadFieldStatic(Predef.getClass, "MODULE$")//frameState.push(Kind.Object, append(ConstantNode.forObject(Predef, runtime, currentGraph)));
+          frameState.push(Kind.Object, append(ConstantNode.forObject("blomp", runtime, currentGraph)));
+
+          // how to get the target without the consts
+          val cls = Predef.getClass
+          val reflectMeth = cls.getDeclaredMethod("println", classOf[Any])
+          val resolvedMethod = runtime.lookupJavaMethod(reflectMeth)
+          stream.setBCI(2)
+          genInvokeSpecial(resolvedMethod)
+
+          clearLocals(frameState)(1)
+          lastInstr.asInstanceOf[StateSplit].setStateAfter(frameState.create(8))
+
+          // block stuff
+          val nextFirstInstruction = currentGraph.add(new BlockPlaceholderNode())
+          val target = new Target(nextFirstInstruction, frameState)
+          val result = target.fixed
+          val tmpState = frameState.copy()
+          clearLocals(tmpState)(1)
+          appendGoto(result)
+
+          frameState = tmpState
+          frameState.cleanupDeletedPhis()
+          frameState.setRethrowException(false)
+
+          lastInstr = nextFirstInstruction
+        }
+
         loadLocal(1, Kind.Int)
 
         // return
