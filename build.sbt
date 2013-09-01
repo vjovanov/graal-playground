@@ -15,6 +15,8 @@ libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 
 libraryDependencies += "junit" % "junit" % "4.8.1" % "test"
 
+libraryDependencies += "asm" % "asm" % "3.3.1"
+
 retrieveManaged := true
 
 unmanagedClasspath in Compile <++= baseDirectory map { base =>
